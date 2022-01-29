@@ -20,7 +20,7 @@ function `newSprite()` reads only the data field.
 
 #include "olcPixelGameEngine.h"
 
-
+// !!! new operator !!!
 olc::Sprite* xpm_to_sprite_(int32_t w, int32_t h, const std::unordered_map<char, olc::Pixel>& colors, const char* const* xpmData);
 
 
