@@ -27,6 +27,9 @@
     <ClCompile Include="..\..\src\application\game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\middleware\xpmSprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\olcPixelGameEngine.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\application\game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\middleware\xpmSprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

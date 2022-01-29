@@ -19,6 +19,7 @@ class Game : public olc::PixelGameEngine
 {
 public:
     Game();
+    virtual ~Game();
 
 public:
     bool OnUserCreate() override;
@@ -26,7 +27,7 @@ public:
     bool OnUserDestroy() override;
 
 private:
-    std::unique_ptr<olc::Sprite> m_spr;
+    olc::Sprite* m_spr = nullptr;
 };
 
 

@@ -11,6 +11,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 #include "game.h"
 #include "middleware/util.h"
+#include "middleware/xpmSprite.h"
 #include "project.h"
 
 #include "olcPixelGameEngine.h"
@@ -21,29 +22,6 @@ using olc::vi2d;
 
 namespace
 {
-    const olc::Pixel bg(31, 10, 84);
-    const olc::Pixel fg(255, 119, 0);
-
-    void drawHexagon(olc::PixelGameEngine* pge, const vi2d& pos, float r, float a_deg)
-    {
-        std::vector<vf2d> points =
-        {
-            vf2d(r, util::deg_rad(-30)).cart(),
-            vf2d(r, util::deg_rad(-90)).cart(),
-            vf2d(r, util::deg_rad(-150)).cart(),
-            vf2d(r, util::deg_rad(150)).cart(),
-            vf2d(r, util::deg_rad(90)).cart(),
-            vf2d(r, util::deg_rad(30)).cart()
-        };
-
-        points = util::rotScaleTransl(points, util::deg_rad(a_deg), 1.0f, pos);
-
-        const size_t n = points.size();
-        for (size_t i = 0; i < n; ++i)
-        {
-            pge->DrawLine(util::vround(points[i]), util::vround(points[(i + 1) % n]), fg);
-        }
-    }
 }
 
 
@@ -53,33 +31,70 @@ Game::Game()
     sAppName = prj::appName;
 }
 
+Game::~Game()
+{
+    delete m_spr;
+}
+
 bool Game::OnUserCreate()
 {
-    m_spr = std::make_unique<olc::Sprite>("frog.spr");
+    std::unordered_map<char, olc::Pixel> colors;
+    colors.insert_or_assign(' ', olc::Pixel(255, 255, 255, 127));
+    colors.insert_or_assign('b', olc::Pixel(0, 123, 255));
+    colors.insert_or_assign('c', olc::Pixel(0, 92, 191));
+    colors.insert_or_assign('.', olc::Pixel(79, 164, 255));
+
+    const char* xpmData[] =
+    {
+        "            b""b            ",
+        "          bbb""bbb          ",
+        "        bbbbb""bbbbb        ",
+        "       bbbb  ""  bbbb       ",
+        "      bbb    ""    bbb      ",
+        "     bbb     ""     bbb     ",
+        "   bbbb      ""      bbbb   ",
+        " bbbbb       ""       bbbbb ",
+        "bbbb         ""         bbbb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "bb           ""           bb",
+        "             ""         bbbb",
+        "             ""       bbbbb ",
+        "             ""      bbbb   ",
+        "             ""     bbb     ",
+        "             ""    bbb      ",
+        "             ""  bbbb       ",
+        "             ""bbbbb        ",
+        "            b""bbb          ",
+        "            b""b            "
+    };
+
+    m_spr = xpm_to_sprite_(26, 30, colors, xpmData);
+    
     return true;
 }
 
 bool Game::OnUserUpdate(float tElapsed)
 {
-    Clear(bg);
+    Clear(olc::BLANK);
 
 #ifdef PRJ_DEBUG
     if (GetKey(olc::ESCAPE).bReleased) olc_Terminate();
 #endif
 
-    drawHexagon(this, util::vround(vf2d(10, 10) * 2.5), 14, 0.1);
-    drawHexagon(this, util::vround(vf2d(20, 10) * 2.5), 14, 0.1);
-    drawHexagon(this, util::vround(vf2d(30, 10) * 2.5), 14, 0.1);
-    drawHexagon(this, util::vround(vf2d(15, 19) * 2.5), 14, 0.1);
-    drawHexagon(this, util::vround(vf2d(25, 19) * 2.5), 14, 0.1);
-    drawHexagon(this, util::vround(vf2d(10, 28) * 2.5), 14, 0.1);
-    drawHexagon(this, util::vround(vf2d(20, 28) * 2.5), 14, 0.1);
-    drawHexagon(this, util::vround(vf2d(30, 28) * 2.5), 14, 0.1);
+    DrawSprite(10, 10, m_spr);
 
     const vi2d mousePos = GetMousePos();
     DrawRect(mousePos - vi2d(1, 1), vi2d(3, 3));
-
-    DrawSprite(40, 40, m_spr.get());
 
     return true;
 }

@@ -17,6 +17,8 @@ olc::vi2d util::vround(const olc::vf2d& v)
     return olc::vi2d(std::lround(v.x), std::lround(v.y));
 }
 
+
+
 olc::vf2d util::rotScaleTransl(const olc::vf2d& point, float angle, float scale, const olc::vf2d& translate)
 {
     olc::vf2d r;
