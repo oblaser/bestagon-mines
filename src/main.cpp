@@ -23,8 +23,7 @@ int main()
 
     Game game;
 
-    //if (game.Construct(480, 480, 1, 1))
-    if (game.Construct(200, 120, 8, 8))
+    if (game.Construct(480, 480, 1, 1))
     {
         game.Start();
     }

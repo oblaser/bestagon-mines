@@ -11,7 +11,6 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include "xpmSprite.h"
 
 #include "olcPixelGameEngine.h"
-#include "xpmSprite.h"
 
 
 

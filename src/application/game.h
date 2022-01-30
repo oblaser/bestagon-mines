@@ -10,12 +10,12 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <memory>
 #include <string>
 
-//#include "something"
+#include "resources/sprites.h"
 
 #include "olcPixelGameEngine.h"
 
 
-class Game : public olc::PixelGameEngine
+class Game : public olc::PixelGameEngine, protected SpriteOwner
 {
 public:
     Game();
@@ -27,7 +27,6 @@ public:
     bool OnUserDestroy() override;
 
 private:
-    olc::Sprite* m_spr = nullptr;
 };
 
 

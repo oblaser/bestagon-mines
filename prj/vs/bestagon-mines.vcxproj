@@ -135,6 +135,7 @@
     <ClCompile Include="..\..\src\middleware\util.cpp" />
     <ClCompile Include="..\..\src\middleware\xpmSprite.cpp" />
     <ClCompile Include="..\..\src\olcPixelGameEngine.cpp" />
+    <ClCompile Include="..\..\src\resources\sprites.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\application\game.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="..\..\src\middleware\xpmSprite.h" />
     <ClInclude Include="..\..\src\olcPixelGameEngine.h" />
     <ClInclude Include="..\..\src\project.h" />
+    <ClInclude Include="..\..\src\resources\sprites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
