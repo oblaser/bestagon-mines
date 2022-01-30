@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            29.01.2022
+date            30.01.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -9,6 +9,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <unordered_map>
 
 #include "middleware/xpmSprite.h"
+#include "project.h"
 #include "sprites.h"
 
 #include "olcPixelGameEngine.h"
@@ -395,26 +396,32 @@ void SpriteOwner::loadSprites()
     spr_mine = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_mine);
     m_sprites.push_back(spr_mine);
 
-    spr_tiles[0] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA);
-    m_sprites.push_back(spr_tiles[0]);
+    spr_num[0] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA);
+    m_sprites.push_back(spr_num[0]);
 
-    spr_tiles[1] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_1);
-    m_sprites.push_back(spr_tiles[1]);
+    spr_num[1] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_1);
+    m_sprites.push_back(spr_num[1]);
 
-    spr_tiles[2] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_2);
-    m_sprites.push_back(spr_tiles[2]);
+    spr_num[2] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_2);
+    m_sprites.push_back(spr_num[2]);
 
-    spr_tiles[3] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_3);
-    m_sprites.push_back(spr_tiles[3]);
+    spr_num[3] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_3);
+    m_sprites.push_back(spr_num[3]);
 
-    spr_tiles[4] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_4);
-    m_sprites.push_back(spr_tiles[4]);
+    spr_num[4] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_4);
+    m_sprites.push_back(spr_num[4]);
 
-    spr_tiles[5] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_5);
-    m_sprites.push_back(spr_tiles[5]);
+    spr_num[5] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_5);
+    m_sprites.push_back(spr_num[5]);
 
-    spr_tiles[6] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_6);
-    m_sprites.push_back(spr_tiles[6]);
+    spr_num[6] = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_6);
+    m_sprites.push_back(spr_num[6]);
+
+
+
+    colors.insert_or_assign('c', olc::Pixel(173, 0, 0));
+    spr_error = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_closed);
+    m_sprites.push_back(spr_error);
 }
 
 void SpriteOwner::deleteSprites()
