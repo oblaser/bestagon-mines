@@ -42,7 +42,7 @@ bool Game::OnUserCreate()
 
 bool Game::OnUserUpdate(float tElapsed)
 {
-    Clear(olc::Pixel(0xab, 0xab, 0xab));
+    Clear(olc::Pixel(0xf0, 0xf0, 0xf0));
 
     //static bool a_or_b = true;
     //if (GetKey(olc::F3).bReleased)
@@ -77,7 +77,7 @@ bool Game::OnUserUpdate(float tElapsed)
 
     DrawSprite(fieldOrig + vi2d(12 + 24 * 0, 20), spr_closed);
 
-    static bool tmp = false;
+    static bool tmp = true;
     if (GetKey(olc::F4).bReleased) tmp = !tmp;
     if (tmp)
     {
@@ -85,20 +85,29 @@ bool Game::OnUserUpdate(float tElapsed)
         DrawSprite(fieldOrig + vi2d(24 * 4, 0), spr_tiles[1]);
         DrawSprite(fieldOrig + vi2d(24 * 5, 0), spr_tiles[2]);
         DrawSprite(fieldOrig + vi2d(24 * 6, 0), spr_tiles[0]);
+        DrawSprite(fieldOrig + vi2d(24 * 7, 0), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 8, 0), spr_mine);
+        DrawSprite(fieldOrig + vi2d(24 * 9, 0), spr_closed);
 
-        DrawSprite(fieldOrig + vi2d(12 + 24 * 1, 20), spr_tiles[3]);
-        DrawSprite(fieldOrig + vi2d(12 + 24 * 2, 20), spr_tiles[4]);
-        DrawSprite(fieldOrig + vi2d(12 + 24 * 3, 20), spr_tiles[5]);
-        DrawSprite(fieldOrig + vi2d(12 + 24 * 4, 20), spr_tiles[6]);
-        DrawSprite(fieldOrig + vi2d(12 + 24 * 5, 20), spr_tiles[0]);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 1, 20 * 1), spr_tiles[3]);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 2, 20 * 1), spr_tiles[4]);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 3, 20 * 1), spr_tiles[5]);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 4, 20 * 1), spr_tiles[0]);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 5, 20 * 1), spr_tiles[0]);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 6, 20 * 1), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 7, 20 * 1), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 8, 20 * 1), spr_closed);
 
         DrawSprite(fieldOrig + vi2d(24 * 0, 20 * 2), spr_tiles[0]);
         DrawSprite(fieldOrig + vi2d(24 * 1, 20 * 2), spr_tiles[0]);
         DrawSprite(fieldOrig + vi2d(24 * 2, 20 * 2), spr_tiles[0]);
         DrawSprite(fieldOrig + vi2d(24 * 3, 20 * 2), spr_tiles[0]);
         DrawSprite(fieldOrig + vi2d(24 * 4, 20 * 2), spr_tiles[0]);
-        DrawSprite(fieldOrig + vi2d(24 * 5, 20 * 2), spr_tiles[0]);
+        DrawSprite(fieldOrig + vi2d(24 * 5, 20 * 2), spr_tiles[6]);
         DrawSprite(fieldOrig + vi2d(24 * 6, 20 * 2), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 7, 20 * 2), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 8, 20 * 2), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 9, 20 * 2), spr_closed);
 
         DrawSprite(fieldOrig + vi2d(12 + 24 * 0, 20 * 3), spr_mine);
         DrawSprite(fieldOrig + vi2d(12 + 24 * 1, 20 * 3), spr_flag);
@@ -106,14 +115,36 @@ bool Game::OnUserUpdate(float tElapsed)
         DrawSprite(fieldOrig + vi2d(12 + 24 * 3, 20 * 3), spr_closed);
         DrawSprite(fieldOrig + vi2d(12 + 24 * 4, 20 * 3), spr_closed);
         DrawSprite(fieldOrig + vi2d(12 + 24 * 5, 20 * 3), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 6, 20 * 3), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 7, 20 * 3), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 8, 20 * 3), spr_closed);
+
+        DrawSprite(fieldOrig + vi2d(24 * 0, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 1, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 2, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 3, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 4, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 5, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 6, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 7, 20 * 4), spr_flag);
+        DrawSprite(fieldOrig + vi2d(24 * 8, 20 * 4), spr_closed);
+        DrawSprite(fieldOrig + vi2d(24 * 9, 20 * 4), spr_closed);
+
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 0, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 1, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 2, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 3, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 4, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 5, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 6, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 7, 20 * 5), spr_closed);
+        DrawSprite(fieldOrig + vi2d(12 + 24 * 8, 20 * 5), spr_closed);
     }
 
     SetPixelMode(pm);
 
 
 
-    const vi2d mousePos = GetMousePos();
-    Draw(mousePos, olc::RED);
 
     return true;
 }
