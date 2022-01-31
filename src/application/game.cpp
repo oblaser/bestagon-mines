@@ -4,6 +4,7 @@ date            31.01.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -27,23 +28,25 @@ namespace
     constexpr size_t fieldH = 21;
     constexpr int32_t fieldPixelW = fieldW * SPR_XOFF;
     constexpr int32_t fieldPixelH = fieldH * SPR_YOFF;
-    constexpr double relNMines = 0.155;
+    constexpr double relNMines = 0.16;
 
     constexpr size_t fieldCoordToFieldIdx(int32_t x, int32_t y) { return static_cast<size_t>(y) * fieldW + static_cast<size_t>(x); }
     constexpr size_t fieldCoordToFieldIdx(size_t x, size_t y) { return y * fieldW + x; }
-    constexpr void fieldIdxToFieldCoord(size_t idx, size_t& x, size_t& y)
+    constexpr void fieldIdxToFieldCoord(size_t idx, int32_t& x, int32_t& y)
     {
         x = idx % fieldW;
         y = idx / fieldW;
     }
 
+#ifdef PRJ_DEBUG
     bool bkpt = false;
+#endif
 }
 
 
 
 Game::Game()
-    : m_mouseDnFieldIdx((size_t)-1), m_firstClick(true)
+    : m_mouseDnFieldIdx((size_t)-1), m_mouseRDnFieldIdx((size_t)-1), m_firstClick(true)
 {
     sAppName = prj::appName;
 
@@ -68,25 +71,36 @@ bool Game::OnUserUpdate(float tElapsed)
     const vi2d mousePos = GetMousePos();
     const size_t mouseFieldIdx = mousePosToFieldIdx(mousePos, fieldOrig);
 
+    if (GetMouse(olc::Mouse::RIGHT).bPressed) m_mouseRDnFieldIdx = mouseFieldIdx;
+    if (GetMouse(olc::Mouse::RIGHT).bReleased && (mouseFieldIdx == m_mouseRDnFieldIdx) && (mouseFieldIdx < m_field.size()) && (m_field[mouseFieldIdx] == T_CLOSED))
+    {
+        m_field[mouseFieldIdx] = T_FLAG;
+    }
+
     if (GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnFieldIdx = mouseFieldIdx;
     if (GetMouse(olc::Mouse::LEFT).bReleased && (mouseFieldIdx == m_mouseDnFieldIdx) && (mouseFieldIdx < m_field.size()))
     {
-        if (m_firstClick) { m_firstClick = false; distributeField(mouseFieldIdx); }
-
-        if (m_mines[mouseFieldIdx])
+        if (m_field[mouseFieldIdx] == T_CLOSED)
         {
-            for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
-            {
-                const size_t fieldIdx = y * fieldW + x;
-                if (m_mines[fieldIdx]) m_field[fieldIdx] = (fieldIdx == mouseFieldIdx ? T_EXPLODED : T_MINE);
-            }
-        }
-        else m_field[mouseFieldIdx] = cntMinesAround(mouseFieldIdx);
+            if (m_firstClick) { m_firstClick = false; distributeField(mouseFieldIdx); }
 
-        discoverField();
+            if (m_mines[mouseFieldIdx])
+            {
+                for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
+                {
+                    const size_t fieldIdx = y * fieldW + x;
+                    if (m_mines[fieldIdx]) m_field[fieldIdx] = (fieldIdx == mouseFieldIdx ? T_EXPLODED : T_MINE);
+                }
+            }
+            else m_field[mouseFieldIdx] = cntMinesAround(mouseFieldIdx);
+
+            discoverField();
+        }
+        else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
     }
-    if (GetKey(olc::F5).bReleased) bkpt = true;
+
 #ifdef PRJ_DEBUG
+    if (GetKey(olc::F5).bReleased) bkpt = true;
     if (GetKey(olc::ESCAPE).bReleased) olc_Terminate();
 #endif
 #pragma endregion
@@ -128,6 +142,7 @@ bool Game::OnUserUpdate(float tElapsed)
     SetPixelMode(pm);
 #pragma endregion
 
+#ifdef PRJ_DEBUG
     if ((mousePos.x >= fieldOrig.x) && (mousePos.x < (fieldOrig.x + fieldPixelW)) &&
         (mousePos.y >= fieldOrig.y) && (mousePos.y < (fieldOrig.y + fieldPixelH)))
     {
@@ -135,6 +150,7 @@ bool Game::OnUserUpdate(float tElapsed)
         const int32_t fieldIdxX = (mousePos.x - fieldOrig.x - (fieldIdxY & 1 ? SPR_XOFF_OR : 0)) / SPR_XOFF;
         DrawRect(fieldOrig.x + (fieldIdxY & 1 ? SPR_XOFF_OR : 0) + SPR_XOFF * fieldIdxX, fieldOrig.y + SPR_YOFF * fieldIdxY, 26, 30, olc::RED);
     }
+#endif
 
     return true;
 }
@@ -146,11 +162,14 @@ bool Game::OnUserDestroy()
 
 int Game::cntMinesAround(size_t fieldIdx)
 {
-    int r = 0;
-
-    size_t x;
-    size_t y;
+    int32_t x, y;
     fieldIdxToFieldCoord(fieldIdx, x, y);
+    return cntMinesAround(x, y);
+}
+
+int Game::cntMinesAround(int32_t x, int32_t y)
+{
+    int r = 0;
 
     if (y & 1)
     {
@@ -180,6 +199,64 @@ int Game::cntMinesAround(size_t fieldIdx)
 
 void Game::discoverField()
 {
+    int32_t cntLoops = 0;
+
+    bool discoveringTiles;
+    do
+    {
+        discoveringTiles = false;
+
+        for (int32_t x = 0; x < fieldW; ++x)
+        {
+            for (int32_t y = 0; y < fieldH; ++y)
+            {
+                if (m_field[fieldCoordToFieldIdx(x, y)] == T_OPEN)
+                {
+                    std::vector<vi2d> scanPos;
+                    scanPos.reserve(6);
+
+                    if (y & 1)
+                    {
+                        if (y > 0) scanPos.push_back(vi2d(x, y - 1));
+                        if ((y > 0) && (x < (fieldW - 1))) scanPos.push_back(vi2d(x + 1, y - 1));
+
+                        if (x > 0) scanPos.push_back(vi2d(x - 1, y));
+                        if (x < (fieldW - 1)) scanPos.push_back(vi2d(x + 1, y));
+
+                        if (y < (fieldH - 1)) scanPos.push_back(vi2d(x, y + 1));
+                        if ((y < (fieldH - 1)) && (x < (fieldW - 1))) scanPos.push_back(vi2d(x + 1, y + 1));
+                    }
+                    else
+                    {
+                        if ((y > 0) && (x > 0)) scanPos.push_back(vi2d(x - 1, y - 1));
+                        if (y > 0) scanPos.push_back(vi2d(x, y - 1));
+
+                        if (x > 0) scanPos.push_back(vi2d(x - 1, y));
+                        if (x < (fieldW - 1)) scanPos.push_back(vi2d(x + 1, y));
+
+                        if ((y < (fieldH - 1)) && (x > 0)) scanPos.push_back(vi2d(x - 1, y + 1));
+                        if (y < (fieldH - 1)) scanPos.push_back(vi2d(x, y + 1));
+                    }
+
+                    for (size_t i = 0; i < scanPos.size(); ++i)
+                    {
+                        const int32_t& tmpX = scanPos[i].x;
+                        const int32_t& tmpY = scanPos[i].y;
+                        const size_t tmpIdx = fieldCoordToFieldIdx(tmpX, tmpY);
+
+                        if (m_field[tmpIdx] == T_CLOSED)
+                        {
+                            m_field[tmpIdx] = cntMinesAround(tmpX, tmpY);
+                            discoveringTiles = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (cntLoops >= 0) ++cntLoops;
+    }
+    while (discoveringTiles);
 }
 
 void Game::distributeField(size_t clickedIdx)
@@ -229,12 +306,14 @@ size_t Game::mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fiel
 
         if (mousePosOnSprX >= 0)
         {
-            const char sprScan = scanHexagon[mousePosOnSprY][mousePosOnSprX];
+            char sprScan = scanHexagon[mousePosOnSprY][mousePosOnSprX];
 
+#ifdef PRJ_DEBUG
             if (bkpt)
             {
                 int dbg___x_ = 0;
             }
+#endif
 
             if (fieldCoordY & 1)
             {
@@ -245,19 +324,29 @@ size_t Game::mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fiel
             }
             else
             {
-                if (sprScan == scanTL) { --fieldCoordY; --fieldCoordX; }
+                if (sprScan == scanTL)
+                {
+                    if (fieldCoordX > 0) { --fieldCoordY; --fieldCoordX; }
+                    else sprScan = scanBorder;
+                }
                 else if (sprScan == scanTR) --fieldCoordY;
-                else if (sprScan == scanBL) { ++fieldCoordY; --fieldCoordX; }
+                else if (sprScan == scanBL)
+                {
+                    if (fieldCoordX > 0) { ++fieldCoordY; --fieldCoordX; }
+                    else sprScan = scanBorder;
+                }
                 else if (sprScan == scanBR) ++fieldCoordY;
             }
 
             if (sprScan != scanBorder) r = fieldCoordToFieldIdx(fieldCoordX, fieldCoordY);
 
+#ifdef PRJ_DEBUG
             if (bkpt)
             {
                 int dbg___x_ = 0;
                 bkpt = false;
             }
+#endif
         }
     }
 

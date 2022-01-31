@@ -47,9 +47,11 @@ private:
     std::vector<int> m_field;
     std::vector<bool> m_mines;
     size_t m_mouseDnFieldIdx;
+    size_t m_mouseRDnFieldIdx;
     bool m_firstClick;
 
     int cntMinesAround(size_t fieldIdx);
+    int cntMinesAround(int32_t x, int32_t y);
     void discoverField();
     void distributeField(size_t clickedIdx);
     size_t mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fieldOrig);
