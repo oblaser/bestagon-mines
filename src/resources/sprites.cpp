@@ -95,20 +95,20 @@ namespace
         "    ####cccccccccc####    ",
         "   ####cccccccccccc####   ",
         " ####cccccccccccccccc#### ",
-        "####ccccccccmmcccccccc####",
+        "####cccccccccccccccccc####", // "####ccccccccmmcccccccc####",
         "##ccccccccmmmmmmcccccccc##",
         "##cccccccmmmmmmmmccccccc##",
         "##ccccccmmmmmmmmmmcccccc##",
         "##cccccmmmmmmmmmmmmccccc##",
         "##cccccmmmmmmmmmmmmccccc##",
-        "##ccccmmmmmmmmmmmmmmcccc##",
-        "##ccccmmmmmmmmmmmmmmcccc##",
+        "##cccccmmmmmmmmmmmmccccc##", // "##ccccmmmmmmmmmmmmmmcccc##",
+        "##cccccmmmmmmmmmmmmccccc##", // "##ccccmmmmmmmmmmmmmmcccc##",
         "##cccccmmmmmmmmmmmmccccc##",
         "##cccccmmmmmmmmmmmmccccc##",
         "##ccccccmmmmmmmmmmcccccc##",
         "##cccccccmmmmmmmmccccccc##",
         "##ccccccccmmmmmmcccccccc##",
-        "####ccccccccmmcccccccc####",
+        "####cccccccccccccccccc####", // "####ccccccccmmcccccccc####",
         " ####cccccccccccccccc#### ",
         "   ####cccccccccccc####   ",
         "    ####cccccccccc####    ",
@@ -419,9 +419,19 @@ void SpriteOwner::loadSprites()
 
 
 
+    colors.insert_or_assign('m', olc::Pixel(173, 0, 0));
+    spr_exploded = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_mine);
+    m_sprites.push_back(spr_exploded);
+
     colors.insert_or_assign('c', olc::Pixel(173, 0, 0));
     spr_error = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_closed);
     m_sprites.push_back(spr_error);
+
+#ifdef PRJ_DEBUG
+    colors.insert_or_assign('c', olc::Pixel(0, 123, 255));
+    dbg_spr_cursor = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_closed);
+    m_sprites.push_back(dbg_spr_cursor);
+#endif
 }
 
 void SpriteOwner::deleteSprites()

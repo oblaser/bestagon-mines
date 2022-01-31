@@ -46,10 +46,15 @@ public:
 private:
     std::vector<int> m_field;
     std::vector<bool> m_mines;
-    int32_t m_mouseDnIdx = -1;
+    size_t m_mouseDnFieldIdx;
+    bool m_firstClick;
 
-    void createField();
+    int cntMinesAround(size_t fieldIdx);
+    void discoverField();
+    void distributeField(size_t clickedIdx);
+    size_t mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fieldOrig);
     void reset();
+
 };
 
 
