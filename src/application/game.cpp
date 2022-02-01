@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            31.01.2022
+date            01.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -10,6 +10,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <cstdlib>
 #include <ctime>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "game.h"
@@ -37,8 +38,29 @@ namespace
         FV_RECT2,
         FV_RECT3,
         FV_HEX1,
-        FV_HEX2
+        FV_HEX2,
+        FV_HEX3,
+        FV_RING,
+
+        FV__end_
     };
+    const char* fieldVarStr[FIELD_VARIANT::FV__end_] =
+    {
+        "RECT 1",
+        "RECT 2",
+        "RECT 3",
+        "HEX 1",
+        "HEX 2",
+        "HEX 3",
+        " RING"
+    };
+    std::string getFieldVarStr(int fv)
+    {
+        std::string r;
+        if ((fv >= 0) && (fv < FV__end_)) r = fieldVarStr[fv];
+        else r = "FV-" + std::to_string(fv);
+        return r;
+    }
 
     constexpr size_t fieldCoordToFieldIdx(int32_t x, int32_t y) { return static_cast<size_t>(y) * fieldW + static_cast<size_t>(x); }
     constexpr size_t fieldCoordToFieldIdx(size_t x, size_t y) { return y * fieldW + x; }
@@ -56,9 +78,15 @@ namespace
 
 
 Game::Game()
-    : m_gui(this), m_mouseDnFieldIdx((size_t)-1), m_mouseRDnFieldIdx((size_t)-1), m_firstClick(true), m_fieldVariant(FV_HEX1)
+    : m_gui(this), m_mouseDnFieldIdx((size_t)-1), m_mouseRDnFieldIdx((size_t)-1), m_firstClick(true), m_fieldVariant(FV_HEX2)
 {
-    sAppName = prj::appName;
+    std::string frameTitle = prj::appName;
+
+#ifdef PRJ_DEBUG
+    frameTitle += " - DEBUG";
+#endif
+
+    sAppName = frameTitle;
 
     reset();
 }
@@ -69,7 +97,9 @@ Game::~Game()
 bool Game::OnUserCreate()
 {
     loadSprites();
+
     m_gui.init();
+    m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
 
     return true;
 }
@@ -78,6 +108,7 @@ bool Game::OnUserUpdate(float tElapsed)
 {
     Clear(olc::Pixel(0xf0, 0xf0, 0xf0));
 
+    m_gui.enable(m_firstClick);
     const int guiEvt = m_gui.update();
 
     const vi2d fieldOrig(20, 20);
@@ -102,7 +133,7 @@ bool Game::OnUserUpdate(float tElapsed)
             if (m_mines[mouseFieldIdx])
             {
                 m_stateIsPlaying = false;
-                m_gui.gameOver(true);
+                m_gui.btnReset()->gameOver(true);
 
                 for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
                 {
@@ -131,9 +162,22 @@ bool Game::OnUserUpdate(float tElapsed)
     if (guiEvt)
     {
         if (guiEvt == Gui::EVT_RESET_CLICK) reset();
+        else if (guiEvt == Gui::EVT_LEFT_CLICK)
+        {
+            --m_fieldVariant;
+            if (m_fieldVariant < 0) m_fieldVariant = FV__end_ - 1;
+            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
+            reset();
+        }
+        else if (guiEvt == Gui::EVT_RIGHT_CLICK)
+        {
+            ++m_fieldVariant;
+            if (m_fieldVariant >= FV__end_) m_fieldVariant = 0;
+            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
+            reset();
+        }
         else if (guiEvt == Gui::EVT_ABOUT_CLICK)
         {
-            int dbg___x_ = 0;
         }
     }
 
@@ -184,6 +228,14 @@ bool Game::OnUserUpdate(float tElapsed)
     SetPixelMode(pm);
 #pragma endregion
 
+    constexpr int32_t appInfoTxtYOff = 460;
+    DrawString(vi2d(813, appInfoTxtYOff), prj::appName, olc::BLACK); // appName strlen = 14
+    const std::string versionStr = std::string("v") + prj::versionStr;
+    DrawString(vi2d(813 + (14 - (int32_t)versionStr.length()) * 4, appInfoTxtYOff + 10), versionStr, olc::BLACK); // 813 + ((14 - strlen) / 2) * 8
+#ifdef PRJ_DEBUG
+    DrawString(vi2d(813 + (14 - 5) * 4, appInfoTxtYOff + 20), "DEBUG", olc::DARK_RED);
+#endif
+
 #ifdef PRJ_DEBUG
     if ((mousePos.x >= fieldOrig.x) && (mousePos.x < (fieldOrig.x + fieldPixelW)) &&
         (mousePos.y >= fieldOrig.y) && (mousePos.y < (fieldOrig.y + fieldPixelH)))
@@ -192,6 +244,10 @@ bool Game::OnUserUpdate(float tElapsed)
         const int32_t fieldIdxX = (mousePos.x - fieldOrig.x - (fieldIdxY & 1 ? SPR_XOFF_OR : 0)) / SPR_XOFF;
         DrawRect(fieldOrig.x + (fieldIdxY & 1 ? SPR_XOFF_OR : 0) + SPR_XOFF * fieldIdxX, fieldOrig.y + SPR_YOFF * fieldIdxY, 26, 30, olc::RED);
     }
+#endif
+
+#ifdef PRJ_DEBUG
+    DrawString(2, 540, mousePos.str(), olc::BLACK);
 #endif
 
     return true;
@@ -237,6 +293,239 @@ int Game::cntMinesAround(int32_t x, int32_t y)
     }
 
     return r;
+}
+
+void Game::createField()
+{
+    if (m_fieldVariant == FV_RECT1)
+    {
+        const vi2d lo(10, 5);
+        const vi2d hi(20, 15);
+
+        for (int32_t y = 0; y < (int32_t)fieldH; ++y)                               // rect 1 algorithm
+        {                                                                           //
+            for (int32_t x = 0; x < (int32_t)fieldW; ++x)                           //
+            {                                                                       //
+                if ((x < lo.x) || (y < lo.y) || (x > (y & 1 ? hi.x - 1 : hi.x)) || (y > hi.y)) //
+                    m_field[fieldCoordToFieldIdx(x, y)] = T_NOSHOW;                 //
+            }                                                                       //
+        }                                                                           //
+    }
+    else if (m_fieldVariant == FV_RECT2)
+    {
+        const vi2d lo(5, 3);
+        const vi2d hi(fieldW - 5, fieldH - 4);
+
+        for (int32_t y = 0; y < (int32_t)fieldH; ++y)                               // rect 1 algorithm
+        {                                                                           //
+            for (int32_t x = 0; x < (int32_t)fieldW; ++x)                           //
+            {                                                                       //
+                if ((x < lo.x) || (y < lo.y) || (x > (y & 1 ? hi.x - 1 : hi.x)) || (y > hi.y)) //
+                    m_field[fieldCoordToFieldIdx(x, y)] = T_NOSHOW;                 //
+            }                                                                       //
+        }                                                                           //
+    }
+    else if (m_fieldVariant == FV_RECT3)
+    {
+        for (size_t y = 0; y < fieldH; ++y)                                         // rect max algorithm
+            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;                 //
+    }
+    else if (m_fieldVariant == FV_HEX1)
+    {
+        // const int32_t nHide[fieldH] =
+        // {
+        //     15, 15, 15, 15, 15,
+        //     15, 15, 15, 15, 15,
+        //     15, 15, 15, 15, 15,
+        //     15, 15, 15, 15, 15,
+        //     15, 15, 15, 15, 15
+        // };
+
+        const int32_t nHide[fieldH] =
+        {
+            15, 15, 15, 15, 10,
+            9, 9, 8, 8, 7,
+            7, 6, 6, 6, 7,
+            7, 8, 8, 9, 9,
+            10, 15, 15, 15, 15
+        };
+
+        for (int32_t y = 0; y < (int32_t)fieldH; ++y)                               // hex 1 algorithm
+        {                                                                           //
+            m_field[fieldCoordToFieldIdx(0, y)] = T_NOSHOW;                         //
+                                                                                    //
+            for (int32_t i = 0; i < nHide[y]; ++i)                                  //
+            {                                                                       //
+                size_t idx;                                                         //
+                                                                                    //
+                if (y & 1)                                                          //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i + 1, y);                           //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1 - 1, y);     //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+                else                                                                //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i + 1, y);                           //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1, y);         //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+            }                                                                       //
+        }                                                                           //
+
+        for (size_t y = 0; y < fieldH; ++y)                                         // rect max algorithm
+            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;                 //
+    }
+    else if (m_fieldVariant == FV_HEX2)
+    {
+        const int32_t nHide[fieldH] =
+        {
+            8, 7, 7, 6, 6,
+            5, 5, 4, 4, 3,
+            3, 2, 2, 2, 3,
+            3, 4, 4, 5, 5,
+            6, 6, 7, 7, 8
+        };
+
+        for (int32_t y = 0; y < (int32_t)fieldH; ++y)                               // hex 1 algorithm
+        {                                                                           //
+            m_field[fieldCoordToFieldIdx(0, y)] = T_NOSHOW;                         //
+                                                                                    //
+            for (int32_t i = 0; i < nHide[y]; ++i)                                  //
+            {                                                                       //
+                size_t idx;                                                         //
+                                                                                    //
+                if (y & 1)                                                          //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i + 1, y);                           //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1 - 1, y);     //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+                else                                                                //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i + 1, y);                           //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1, y);         //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+            }                                                                       //
+        }                                                                           //
+
+        for (size_t y = 0; y < fieldH; ++y)                                         // rect max algorithm
+            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;                 //
+    }
+    else if (m_fieldVariant == FV_HEX3)
+    {
+        const int32_t nHide[fieldH] =
+        {
+            6, 5, 5, 4, 4,
+            3, 3, 2, 2, 1,
+            1, 0, 0, 0, 1,
+            1, 2, 2, 3, 3,
+            4, 4, 5, 5, 6
+        };
+
+        for (int32_t y = 0; y < (int32_t)fieldH; ++y)                               // hex full algorithm
+        {                                                                           //
+            for (int32_t i = 0; i < nHide[y]; ++i)                                  //
+            {                                                                       //
+                size_t idx;                                                         //
+                                                                                    //
+                if (y & 1)                                                          //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i, y);                               //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1 - 1, y);     //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+                else                                                                //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i, y);                               //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1, y);         //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+            }                                                                       //
+        }                                                                           //
+
+        for (size_t y = 0; y < fieldH; ++y)                                         // rect max algorithm
+            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;                 //
+    }
+    else if (m_fieldVariant == FV_RING)
+    {
+        const int32_t nHide[fieldH] =
+        {
+            8, 7, 7, 6, 6,
+            5, 5, 4, 4, 3,
+            3, 2, 2, 2, 3,
+            3, 4, 4, 5, 5,
+            6, 6, 7, 7, 8
+        };
+
+        for (int32_t y = 0; y < (int32_t)fieldH; ++y)                               // hex 1 algorithm
+        {                                                                           //
+            m_field[fieldCoordToFieldIdx(0, y)] = T_NOSHOW;                         //
+                                                                                    //
+            for (int32_t i = 0; i < nHide[y]; ++i)                                  //
+            {                                                                       //
+                size_t idx;                                                         //
+                                                                                    //
+                if (y & 1)                                                          //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i + 1, y);                           //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1 - 1, y);     //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+                else                                                                //
+                {                                                                   //
+                    idx = fieldCoordToFieldIdx(i + 1, y);                           //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                                                                                    //
+                    idx = fieldCoordToFieldIdx((int32_t)fieldW - i - 1, y);         //
+                    if (idx < m_field.size()) m_field[idx] = T_NOSHOW;              //
+                }                                                                   //
+            }                                                                       //
+        }                                                                           //
+
+        for (size_t y = 0; y < fieldH; ++y)                                         // rect max algorithm
+            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;                 //
+
+        // ring 1
+        for (int32_t i = 0; i < 5; ++i) m_field[fieldCoordToFieldIdx(13 + i, 8)] = T_NOSHOW;
+        for (int32_t i = 0; i < 6; ++i) m_field[fieldCoordToFieldIdx(12 + i, 9)] = T_NOSHOW;
+        for (int32_t i = 0; i < 7; ++i) m_field[fieldCoordToFieldIdx(12 + i, 10)] = T_NOSHOW;
+        for (int32_t i = 0; i < 8; ++i) m_field[fieldCoordToFieldIdx(11 + i, 11)] = T_NOSHOW;
+        for (int32_t i = 0; i < 9; ++i) m_field[fieldCoordToFieldIdx(11 + i, 12)] = T_NOSHOW;
+        for (int32_t i = 0; i < 8; ++i) m_field[fieldCoordToFieldIdx(11 + i, 13)] = T_NOSHOW;
+        for (int32_t i = 0; i < 7; ++i) m_field[fieldCoordToFieldIdx(12 + i, 14)] = T_NOSHOW;
+        for (int32_t i = 0; i < 6; ++i) m_field[fieldCoordToFieldIdx(12 + i, 15)] = T_NOSHOW;
+        for (int32_t i = 0; i < 5; ++i) m_field[fieldCoordToFieldIdx(13 + i, 16)] = T_NOSHOW;
+
+        // ring 2
+        // for (int32_t i = 0; i < 4; ++i) m_field[fieldCoordToFieldIdx(13 + i, 9)] = T_NOSHOW;
+        // for (int32_t i = 0; i < 5; ++i) m_field[fieldCoordToFieldIdx(13 + i, 10)] = T_NOSHOW;
+        // for (int32_t i = 0; i < 6; ++i) m_field[fieldCoordToFieldIdx(12 + i, 11)] = T_NOSHOW;
+        // for (int32_t i = 0; i < 7; ++i) m_field[fieldCoordToFieldIdx(12 + i, 12)] = T_NOSHOW;
+        // for (int32_t i = 0; i < 6; ++i) m_field[fieldCoordToFieldIdx(12 + i, 13)] = T_NOSHOW;
+        // for (int32_t i = 0; i < 5; ++i) m_field[fieldCoordToFieldIdx(13 + i, 14)] = T_NOSHOW;
+        // for (int32_t i = 0; i < 4; ++i) m_field[fieldCoordToFieldIdx(13 + i, 15)] = T_NOSHOW;
+    }
+    else
+    {
+        for (size_t y = 0; y < fieldH; ++y)                                         // rect max algorithm
+            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;                 //
+    }
 }
 
 // 
@@ -419,38 +708,7 @@ void Game::reset()
     const size_t fieldSize = (fieldW * fieldH);
 
     m_field.assign(fieldSize, T_CLOSED);
-    if (m_fieldVariant == FV_RECT1)
-    {
-        for (int32_t y = 0; y < (int32_t)fieldH; ++y)
-        {
-            for (int32_t x = 0; x < (int32_t)fieldW; ++x)
-            {
-                if ((y < 4) || (y > 15) || (x < 10) || (x > 20)) m_field[fieldCoordToFieldIdx(x, y)] = T_NOSHOW;
-            }
-        }
-    }
-    else if (m_fieldVariant == FV_RECT2);
-    else if (m_fieldVariant == FV_RECT3)
-    {
-        for (size_t y = 0; y < fieldH; ++y)
-            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;
-    }
-    else if (m_fieldVariant == FV_HEX1)
-    {
-        for (int32_t y = 0; y < (int32_t)fieldH; ++y)
-        {
-            for (int32_t x = 0; x < (int32_t)fieldW; ++x)
-            {
-                if ((y < 6) || (y > 14) || (x < 11) || (x > 19)) m_field[fieldCoordToFieldIdx(x, y)] = T_NOSHOW;
-            }
-        }
-    }
-    else if (m_fieldVariant == FV_HEX2);
-    else
-    {
-        for (size_t y = 0; y < fieldH; ++y)
-            if (y & 1) m_field[y * fieldW + fieldW - 1] = T_NOSHOW;
-    }
+    createField();
     m_field.shrink_to_fit();
 
     m_mines.assign(fieldSize, false);
@@ -458,5 +716,5 @@ void Game::reset()
 
     m_firstClick = true;
     m_stateIsPlaying = true;
-    m_gui.gameOver(false);
+    if (m_gui.btnReset()) m_gui.btnReset()->gameOver(false);
 }

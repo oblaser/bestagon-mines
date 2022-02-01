@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            31.01.2022
+date            01.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -13,6 +13,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <string>
 #include <vector>
 
+#include "middleware/util.h"
 #include "project.h"
 
 #include "olcPixelGameEngine.h"
@@ -32,22 +33,42 @@ public:
     };
 
 public:
-    Control() : m_id(-1), m_pos(-1, -1) {}
-    Control(const olc::vi2d& pos) : m_id(-1), m_pos(pos) {}
-    Control(int id, const olc::vi2d& pos) : m_id(id), m_pos(pos) {}
+    Control() : m_enabled(true), m_id(-1), m_pos(-1, -1) {}
+    Control(const olc::vi2d& pos) : m_enabled(true), m_id(-1), m_pos(pos) {}
+    Control(int id, const olc::vi2d& pos) : m_enabled(true), m_id(id), m_pos(pos) {}
     virtual ~Control() {}
 
     int id() const { return m_id; }
+    bool isEnabled() const { return m_enabled; }
     const olc::vi2d& pos() const { return m_pos; }
 
+    void enable(bool state = true) { m_enabled = state; }
+    void disable() { enable(false); }
     void setId(int id) { m_id = id; }
 
     virtual bool isMouse(const olc::vi2d& mousePos) const = 0;
     virtual void draw(olc::PixelGameEngine* pge, int drawMode) = 0;
 
 protected:
+    bool m_enabled;
     int m_id;
     olc::vi2d m_pos;
+};
+
+class StaticText : public Control
+{
+public:
+    StaticText(const olc::vi2d& pos, const std::string& label);
+    virtual ~StaticText() {}
+
+    void setLabel(const std::string& label);
+
+    virtual bool isMouse(const olc::vi2d& mousePos) const;
+    virtual void draw(olc::PixelGameEngine* pge, int drawMode);
+
+protected:
+    std::string m_label;
+    olc::vi2d m_size;
 };
 
 class ResetButton : public Control
@@ -72,6 +93,15 @@ private:
     bool m_gameOver;
 };
 
+class StringButton : public StaticText
+{
+public:
+    StringButton(const olc::vi2d& pos, const std::string& label);
+    virtual ~StringButton() {}
+
+    virtual void draw(olc::PixelGameEngine* pge, int drawMode);
+};
+
 #pragma endregion
 
 
@@ -94,7 +124,9 @@ public:
 
     void init();
 
-    void gameOver(bool state);
+    void enable(bool state);
+    ResetButton*& btnReset() { return btn_reset; }
+    StaticText*& stFieldName() { return st_fieldName; }
 
     int update();
 
@@ -103,7 +135,10 @@ private:
     olc::PixelGameEngine* const m_pge = nullptr;
 
     ResetButton* btn_reset = nullptr;
-    ResetButton* btn_about = nullptr;
+    StringButton* btn_left = nullptr;
+    StaticText* st_fieldName = nullptr;
+    StringButton* btn_right = nullptr;
+    StringButton* btn_about = nullptr;
 
     void initControls();
 
