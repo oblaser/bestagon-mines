@@ -2,7 +2,7 @@
 # date          01.02.2022
 # copyright     OLC-3 - Copyright (c) 2022 Oliver Blaser
 
-versionstr="0.1.0-alpha"
+versionstr=$(head -n 1 dep_vstr.txt)
 
 function ptintTitle()
 {

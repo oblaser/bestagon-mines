@@ -5,22 +5,32 @@
 
 
 
-rmdir /s /q packed\bestagon-mines_win_x64
+setlocal
 
+set /p VERSIONSTR=<dep_vstr.txt
+set EXENAME=bestagon-mines
+set PLATFORM=x64
+set OUTDIRNAME=bestagon-mines_win_%PLATFORM%
+set OUTDIR=packed\%OUTDIRNAME%
+set ARCHIVE=%EXENAME%_win_x64_v%VERSIONSTR%.zip
 
+rmdir /s /q %OUTDIR%
 
-xcopy /i /s /e ..\include packed\omw_win\omw\include\
+xcopy /i ..\assets\smiley_exp*.png %OUTDIR%\%EXENAME%\assets\
+copy ..\assets\smiley.png %OUTDIR%\%EXENAME%\assets\
+copy ..\assets\smiley_hover2.png %OUTDIR%\%EXENAME%\assets\
+copy ..\assets\smiley_click.png %OUTDIR%\%EXENAME%\assets\
 
-xcopy /i ..\lib\omw-d.lib packed\omw_win\omw\lib\
-xcopy /i ..\lib\omw.lib packed\omw_win\omw\lib\
-@rem xcopy /i ..\lib64\omw-d.lib packed\omw_win\omw\lib64\
-@rem xcopy /i ..\lib64\omw.lib packed\omw_win\omw\lib64\
+copy ..\prj\vs\Release-x64\%EXENAME%.exe %OUTDIR%\%EXENAME%\
 
-copy dep_readme.txt packed\omw_win\omw\readme.txt
-xcopy ..\license.txt packed\omw_win\omw
+copy ..\license.txt %OUTDIR%\%EXENAME%\
+copy dep_readme.txt %OUTDIR%\%EXENAME%\readme.txt
 
-cd packed\omw_win
-"C:\Program Files\7-Zip\7z.exe" a omw_win_vX.X.X.zip omw\
+cd %OUTDIR%
+"C:\Program Files\7-Zip\7z.exe" a %ARCHIVE% %EXENAME%\
 cd ..\..
 
-move packed\omw_win\omw_win_vX.X.X.zip packed\omw_win_vX.X.X.zip
+del packed\%ARCHIVE%
+move %OUTDIR%\%ARCHIVE% packed\%ARCHIVE%
+
+endlocal
