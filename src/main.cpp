@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            30.01.2022
+date            31.01.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -23,7 +23,7 @@ int main()
 
     Game game;
 
-    if (game.Construct(800, 480, 1, 1))
+    if (game.Construct(1000, 550, 1, 1))
     {
         game.Start();
     }

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            30.01.2022
+date            31.01.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -121,36 +121,36 @@ namespace
 
     const char* const hexagon_v1_variantA_flag[] =
     {
-        "            ##            ",
-        "          ######          ",
-        "         ########         ",
-        "       ####cccc####       ",
-        "      ####cccccc####      ",
-        "    ####cccccccccc####    ",
-        "   ####cccccccccccc####   ",
-        " ####cccccccccccccccc#### ",
-        "####cccccccffccccccccc####",
-        "##cccccccccffffccccccccc##",
-        "##cccccccccffffffccccccc##",
-        "##cccccccccffffffffccccc##",
-        "##cccccccccffffffccccccc##",
-        "##cccccccccffffccccccccc##",
-        "##cccccccccffccccccccccc##",
-        "##cccccccccffccccccccccc##",
-        "##cccccccccffccccccccccc##",
-        "##cccccccccffccccccccccc##",
-        "##cccccccccffccccccccccc##",
-        "##ccccccccfffffccccccccc##",
-        "##cccccccffffffffccccccc##",
-        "####ccccffffffffffcccc####",
-        " ####cccccccccccccccc#### ",
-        "   ####cccccccccccc####   ",
-        "    ####cccccccccc####    ",
-        "      ####cccccc####      ",
-        "       ####cccc####       ",
-        "         ########         ",
-        "          ######          ",
-        "            ##            "
+        "            ##            ", // "            ##            ",
+        "          ######          ", // "          ######          ",
+        "         ########         ", // "         ########         ",
+        "       ####cccc####       ", // "       ####cccc####       ",
+        "      ####cccccc####      ", // "      ####cccccc####      ",
+        "    ####cccccccccc####    ", // "    ####cccccccccc####    ",
+        "   ####cccccccccccc####   ", // "   ####cccccccccccc####   ",
+        " ####cccccccccccccccc#### ", // " ####cccccccccccccccc#### ",
+        "####cccccccpfccccccccc####", // "####cccccccffccccccccc####",
+        "##cccccccccpfffccccccccc##", // "##cccccccccffffccccccccc##",
+        "##cccccccccpfffffccccccc##", // "##cccccccccffffffccccccc##",
+        "##cccccccccpfffffffccccc##", // "##cccccccccffffffffccccc##",
+        "##cccccccccpfffffccccccc##", // "##cccccccccffffffccccccc##",
+        "##cccccccccpfffccccccccc##", // "##cccccccccffffccccccccc##",
+        "##cccccccccpfccccccccccc##", // "##cccccccccffccccccccccc##",
+        "##cccccccccppccccccccccc##", // "##cccccccccffccccccccccc##",
+        "##cccccccccppccccccccccc##", // "##cccccccccffccccccccccc##",
+        "##cccccccccppccccccccccc##", // "##cccccccccffccccccccccc##",
+        "##cccccccccppccccccccccc##", // "##cccccccccffccccccccccc##",
+        "##ccccccccmmmmmccccccccc##", // "##ccccccccfffffccccccccc##",
+        "##cccccccmmmmmmmmccccccc##", // "##cccccccffffffffccccccc##",
+        "####ccccmmmmmmmmmmcccc####", // "####ccccffffffffffcccc####",
+        " ####cccccccccccccccc#### ", // " ####cccccccccccccccc#### ",
+        "   ####cccccccccccc####   ", // "   ####cccccccccccc####   ",
+        "    ####cccccccccc####    ", // "    ####cccccccccc####    ",
+        "      ####cccccc####      ", // "      ####cccccc####      ",
+        "       ####cccc####       ", // "       ####cccc####       ",
+        "         ########         ", // "         ########         ",
+        "          ######          ", // "          ######          ",
+        "            ##            "  // "            ##            "
     };
 
     const char* const hexagon_v1_variantA_1[] =
@@ -383,7 +383,8 @@ void SpriteOwner::loadSprites()
     colors.insert_or_assign('5', olc::Pixel(0xff, 0x00, 0x00));
     colors.insert_or_assign('6', olc::Pixel(0xff, 0x00, 0x00));
     colors.insert_or_assign('m', olc::Pixel(0x33, 0x21, 0x04));
-    colors.insert_or_assign('f', olc::Pixel(255, 89, 0));
+    colors.insert_or_assign('p', olc::Pixel(0, 0, 0));
+    colors.insert_or_assign('f', olc::Pixel(255, 30, 0));
 
     deleteSprites();
 
@@ -423,15 +424,21 @@ void SpriteOwner::loadSprites()
     spr_exploded = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_mine);
     m_sprites.push_back(spr_exploded);
 
+    colors.insert_or_assign('m', olc::Pixel(0, 127, 0));
+    spr_mineFound = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_mine);
+    m_sprites.push_back(spr_mineFound);
+
     colors.insert_or_assign('c', olc::Pixel(173, 0, 0));
     spr_error = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_closed);
     m_sprites.push_back(spr_error);
 
 #ifdef PRJ_DEBUG
-    colors.insert_or_assign('c', olc::Pixel(0, 123, 255));
+    colors.insert_or_assign('c', olc::Pixel(0, 123, 255, 150));
     dbg_spr_cursor = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_closed);
     m_sprites.push_back(dbg_spr_cursor);
 #endif
+
+    m_sprites.shrink_to_fit();
 }
 
 void SpriteOwner::deleteSprites()

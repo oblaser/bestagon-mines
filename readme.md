@@ -4,6 +4,17 @@
 
 
 
+## Build
+
+### Linux
+```
+$ cd build/cmake
+$ cmake .
+$ make
+```
+
+### Windows
+Open `prj/vs/bestagon-mines.sln` and build a release configuration, x86 or x64.
 
 
 

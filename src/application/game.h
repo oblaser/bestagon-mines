@@ -1,15 +1,18 @@
 /*
 author          Oliver Blaser
-date            30.01.2022
+date            31.01.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
 #ifndef IG_APP_GAME_H
 #define IG_APP_GAME_H
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 
+#include "gui.h"
 #include "resources/sprites.h"
 
 #include "olcPixelGameEngine.h"
@@ -18,7 +21,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 class Game : public olc::PixelGameEngine, protected SpriteOwner
 {
 public:
-    enum TILE_STATUS
+    enum TILE_STATUS // order is important!
     {
         T_NOSHOW = -1,
         T_OPEN = 0,
@@ -30,6 +33,7 @@ public:
         T_6,
         T_CLOSED,
         T_MINE,
+        T_MINE_FOUND,
         T_EXPLODED,
         T_FLAG
     };
@@ -44,19 +48,21 @@ public:
     bool OnUserDestroy() override;
 
 private:
+    Gui m_gui;
     std::vector<int> m_field;
     std::vector<bool> m_mines;
     size_t m_mouseDnFieldIdx;
     size_t m_mouseRDnFieldIdx;
     bool m_firstClick;
+    bool m_stateIsPlaying;
+    int m_fieldVariant;
 
     int cntMinesAround(size_t fieldIdx);
     int cntMinesAround(int32_t x, int32_t y);
-    void discoverField();
+    bool discoverCheckField();
     void distributeField(size_t clickedIdx);
     size_t mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fieldOrig);
     void reset();
-
 };
 
 

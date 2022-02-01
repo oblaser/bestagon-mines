@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            30.01.2022
+date            31.01.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -78,6 +78,7 @@ protected:
     olc::Sprite* spr_exploded = nullptr;
     olc::Sprite* spr_flag = nullptr;
     olc::Sprite* spr_mine = nullptr;
+    olc::Sprite* spr_mineFound = nullptr;
     olc::Sprite* spr_num[7];
 
 #ifdef PRJ_DEBUG

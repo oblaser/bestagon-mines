@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\application\game.cpp" />
+    <ClCompile Include="..\..\src\application\gui.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\middleware\util.cpp" />
     <ClCompile Include="..\..\src\middleware\xpmSprite.cpp" />
@@ -139,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\application\game.h" />
+    <ClInclude Include="..\..\src\application\gui.h" />
     <ClInclude Include="..\..\src\middleware\util.h" />
     <ClInclude Include="..\..\src\middleware\xpmSprite.h" />
     <ClInclude Include="..\..\src\olcPixelGameEngine.h" />
