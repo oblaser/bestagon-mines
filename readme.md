@@ -7,14 +7,18 @@
 ## Build
 
 ### Linux
+Required software: `cmake`, `build-essential`
 ```
-$ cd build/cmake
-$ cmake .
-$ make
+$ cd build/
+$ ./build.sh [cleanAll] cmake make [&& ./pack.sh]
 ```
 
 ### Windows
-Open `prj/vs/bestagon-mines.sln` and build a release configuration, x86 or x64.
+Required software: `Visual Studio`
+1. Build
+    1. Open `prj/vs/bestagon-mines.sln`
+    0. Build `Release | x86` and/or `Release | x64`
+0. _optionally_ Run `pack*.bat` in the `build` directory.
 
 
 

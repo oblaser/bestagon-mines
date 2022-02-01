@@ -44,6 +44,8 @@ void ResetButton::draw(olc::PixelGameEngine* pge, int drawMode)
 {
     const vi2d pos(m_pos.x - 20, m_pos.y - 20);
 
+    pge->FillCircle(m_pos, radius - 5, olc::Pixel(252, 193, 41)); // to see the btn if the sprites are not loaded
+    
     const auto pm = pge->GetPixelMode();
     pge->SetPixelMode(olc::Pixel::ALPHA);
 
