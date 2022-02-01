@@ -19,7 +19,7 @@ namespace prj
     const char* const exeName = "bestagon-mines"; // eq to the linker settings
 
     //const omw::Version version(0, 1, 0, "alpha");
-    const char* const versionStr = "0.1.0-alpha";
+    const char* const versionStr = "0.1.0";
 
     const char* const website = "https://github.com/oblaser/bestagon-mines";
 }

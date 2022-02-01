@@ -612,9 +612,9 @@ void Game::distributeField(size_t clickedIdx)
         }
     }
 
-    size_t nMines = nTiles * relNMines;
+    size_t nMines = (size_t)(nTiles * relNMines);
 
-    std::srand(std::time(nullptr));
+    std::srand((unsigned int)std::time(nullptr));
 
     const size_t fieldSize = (fieldW * fieldH);
 
