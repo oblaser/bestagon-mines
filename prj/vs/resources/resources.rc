@@ -1,0 +1,12 @@
+//
+// author       Oliver Blaser
+// date         02.02.2022
+// copyright    OLC-3 - Copyright (c) 2022 Oliver Blaser
+//
+
+#include "resources.h"
+
+
+// the alphabetical first ICON is used by Windows as app icon
+AAAAA_MainIcon ICON "..\\..\\..\\assets\\icon.ico"
+//IDI_MAINICON ICON "..\\..\\..\\assets\\icon.ico"

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            01.02.2022
+date            02.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -19,6 +19,10 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include "project.h"
 
 #include "olcPixelGameEngine.h"
+#ifdef OLC_PLATFORM_WINAPI
+//#include "../prj/vs/resources/resources.h"
+#include <Windows.h>
+#endif
 
 
 using olc::vf2d;
@@ -96,6 +100,14 @@ Game::~Game()
 
 bool Game::OnUserCreate()
 {
+#ifdef OLC_PLATFORM_WINAPI
+    HWND hwnd_pge = FindWindowExW(nullptr, nullptr, L"OLC_PIXEL_GAME_ENGINE", nullptr);
+    HICON hicon = LoadIconW(GetModuleHandleW(nullptr), L"AAAAA_MainIcon");
+    //HICON hicon = LoadIconW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_MAINICON));
+    SendMessageW(hwnd_pge, WM_SETICON, ICON_SMALL, (LPARAM)hicon);
+    SendMessageW(hwnd_pge, WM_SETICON, ICON_BIG, (LPARAM)hicon);
+#endif
+
     loadSprites();
 
     m_gui.init();
