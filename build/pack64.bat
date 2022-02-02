@@ -1,6 +1,6 @@
 
 @rem    author          Oliver Blaser
-@rem    date            01.02.2022
+@rem    date            02.02.2022
 @rem    copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 
@@ -20,6 +20,7 @@ xcopy /i ..\assets\smiley_exp*.png %OUTDIR%\%EXENAME%\assets\
 copy ..\assets\smiley.png %OUTDIR%\%EXENAME%\assets\
 copy ..\assets\smiley_hover2.png %OUTDIR%\%EXENAME%\assets\
 copy ..\assets\smiley_click.png %OUTDIR%\%EXENAME%\assets\
+copy ..\assets\smiley_won.png %OUTDIR%\%EXENAME%\assets\
 
 copy ..\prj\vs\Release-x64\%EXENAME%.exe %OUTDIR%\%EXENAME%\
 

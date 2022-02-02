@@ -25,12 +25,13 @@ namespace
 
 
 ResetButton::ResetButton(const olc::vi2d& pos)
-    : Control(pos), m_gameOver(false)
+    : Control(pos), m_face(0)
 {
     spr_click = std::make_unique<olc::Sprite>("./assets/smiley_click.png");
     spr_expl = std::make_unique<olc::Sprite>("./assets/smiley_expl.png");
     spr_hover = std::make_unique<olc::Sprite>("./assets/smiley_hover2.png");
     spr_normal = std::make_unique<olc::Sprite>("./assets/smiley.png");
+    spr_won = std::make_unique<olc::Sprite>("./assets/smiley_won.png");
 }
 
 bool ResetButton::isMouse(const olc::vi2d& mousePos) const
@@ -45,8 +46,8 @@ void ResetButton::draw(olc::PixelGameEngine* pge, int drawMode)
     const vi2d pos(m_pos.x - 20, m_pos.y - 20);
 
     const olc::Pixel pxNormal(0xfc, 0xc1, 0x29);
-    const olc::Pixel pxHover(0xfc, 0xde, 0x3e);
-    const olc::Pixel pxClick(0xf8, 0xa1, 0x1e);
+    const olc::Pixel pxHover(0xf8, 0xa1, 0x1e);
+    const olc::Pixel pxClick(0xfc, 0xde, 0x3e);
 
     const auto pm = pge->GetPixelMode();
     pge->SetPixelMode(olc::Pixel::ALPHA);
@@ -63,16 +64,22 @@ void ResetButton::draw(olc::PixelGameEngine* pge, int drawMode)
     }
     else
     {
-        if (m_gameOver)
-        {
-            if (spr_expl.get()->pColData.empty()) pge->FillCircle(m_pos, radius, pxNormal);
-            else pge->DrawSprite(pos, spr_expl.get());
-        }
-        else
+        if (m_face == 0)
         {
             if (spr_normal.get()->pColData.empty()) pge->FillCircle(m_pos, radius, pxNormal);
             else pge->DrawSprite(pos, spr_normal.get());
         }
+        else if (m_face == 1)
+        {
+            if (spr_expl.get()->pColData.empty()) pge->FillCircle(m_pos, radius, pxNormal);
+            else pge->DrawSprite(pos, spr_expl.get());
+        }
+        else if (m_face == 2)
+        {
+            if (spr_won.get()->pColData.empty()) pge->FillCircle(m_pos, radius, pxNormal);
+            else pge->DrawSprite(pos, spr_won.get());
+        }
+        else pge->FillCircle(m_pos, radius, olc::Pixel(173, 0, 0));
     }
 
     pge->SetPixelMode(pm);

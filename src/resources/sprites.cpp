@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            31.01.2022
+date            02.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -151,6 +151,40 @@ namespace
         "         ########         ", // "         ########         ",
         "          ######          ", // "          ######          ",
         "            ##            "  // "            ##            "
+    };
+
+    const char* const hexagon_v1_variantA_flag_wrong[] =
+    {
+        "            ##            ",
+        "          ######          ",
+        "         ########         ",
+        "       ####cccc####       ",
+        "      ####cccccc####      ",
+        "    ####cccccccccc####    ",
+        "   ####cccccccccccc####   ",
+        " ####@@cccccccccccc@@#### ",
+        "####c@@@cccpfccccc@@@c####",
+        "##cccc@@@ccpfffcc@@@cccc##",
+        "##ccccc@@@cpffff@@@ccccc##",
+        "##cccccc@@@pfff@@@fccccc##",
+        "##ccccccc@@@ff@@@ccccccc##",
+        "##cccccccc@@@@@@cccccccc##",
+        "##ccccccccc@@@@ccccccccc##",
+        "##ccccccccc@@@@ccccccccc##",
+        "##cccccccc@@@@@@cccccccc##",
+        "##ccccccc@@@pc@@@ccccccc##",
+        "##cccccc@@@ppcc@@@cccccc##",
+        "##ccccc@@@mmmmmc@@@ccccc##",
+        "##cccc@@@mmmmmmmm@@@cccc##",
+        "####c@@@mmmmmmmmmm@@@c####",
+        " ####@@cccccccccccc@@#### ",
+        "   ####cccccccccccc####   ",
+        "    ####cccccccccc####    ",
+        "      ####cccccc####      ",
+        "       ####cccc####       ",
+        "         ########         ",
+        "          ######          ",
+        "            ##            "
     };
 
     const char* const hexagon_v1_variantA_1[] =
@@ -371,7 +405,7 @@ SpriteOwner::~SpriteOwner()
 
 void SpriteOwner::loadSprites()
 {
-    colors.insert_or_assign(' ', olc::Pixel(127, 127, 127, 0));
+    colors.insert_or_assign(' ', olc::Pixel(0xff, 0x00, 0xcc, 0));
     colors.insert_or_assign('#', olc::Pixel(0xa0, 0xa0, 0xa0)); // border
     //colors.insert_or_assign('#', olc::Pixel(0xba, 0xba, 0xba)); // border
     colors.insert_or_assign('.', olc::Pixel(0xe8, 0xe8, 0xe8)); // open tile background
@@ -384,7 +418,8 @@ void SpriteOwner::loadSprites()
     colors.insert_or_assign('6', olc::Pixel(0xff, 0x00, 0x00));
     colors.insert_or_assign('m', olc::Pixel(0x33, 0x21, 0x04));
     colors.insert_or_assign('p', olc::Pixel(0, 0, 0));
-    colors.insert_or_assign('f', olc::Pixel(255, 30, 0));
+    colors.insert_or_assign('f', olc::Pixel(0xff, 0x1e, 0x00));
+    colors.insert_or_assign('@', olc::Pixel(0x9D, 0x12, 0x00));
 
     deleteSprites();
 
@@ -393,6 +428,9 @@ void SpriteOwner::loadSprites()
 
     spr_flag = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_flag);
     m_sprites.push_back(spr_flag);
+
+    spr_flag_wrong = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_flag_wrong);
+    m_sprites.push_back(spr_flag_wrong);
 
     spr_mine = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_mine);
     m_sprites.push_back(spr_mine);
@@ -419,6 +457,10 @@ void SpriteOwner::loadSprites()
     m_sprites.push_back(spr_num[6]);
 
 
+
+    colors.insert_or_assign('f', olc::Pixel(0x00, 0x7F, 0x00));
+    spr_flag_correct = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_flag);
+    m_sprites.push_back(spr_flag_correct);
 
     colors.insert_or_assign('m', olc::Pixel(173, 0, 0));
     spr_exploded = xpm_to_sprite_(26, 30, colors, hexagon_v1_variantA_mine);

@@ -39,7 +39,9 @@ public:
         T_MINE,
         T_MINE_FOUND,
         T_EXPLODED,
-        T_FLAG
+        T_FLAG,
+        T_FLAG_CORRECT,
+        T_FLAG_WRONG
     };
 
 public:

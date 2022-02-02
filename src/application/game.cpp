@@ -410,7 +410,7 @@ void Game::createField()
 }
 
 // 
-// returns `true` if all safe tiles are found
+// returns `true` if all safe tiles are opened
 // 
 bool Game::discoverCheckField()
 {
@@ -569,9 +569,9 @@ size_t Game::mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fiel
             {
                 int dbg___x_ = 0;
                 bkpt = false;
-    }
+            }
 #endif
-}
+        }
     }
 
     try
@@ -597,7 +597,7 @@ void Game::reset()
 
     m_firstClick = true;
     m_stateIsPlaying = true;
-    if (btn_reset) btn_reset->gameOver(false);
+    if (btn_reset) btn_reset->resetSmiley();
 }
 
 void Game::updateGame(float tElapsed, int guiEvt)
@@ -633,12 +633,20 @@ void Game::updateGame(float tElapsed, int guiEvt)
             if (m_mines[mouseFieldIdx])
             {
                 m_stateIsPlaying = false;
-                btn_reset->gameOver(true);
+                btn_reset->gameOver();
 
                 for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
                 {
-                    const size_t fieldIdx = y * fieldW + x;
-                    if (m_mines[fieldIdx]) m_field[fieldIdx] = (fieldIdx == mouseFieldIdx ? T_EXPLODED : T_MINE);
+                    const size_t fieldIdx = fieldCoordToFieldIdx(x, y);
+                    auto& tile = m_field[fieldIdx];
+
+                    if (m_mines[fieldIdx])
+                    {
+                        if (fieldIdx == mouseFieldIdx) tile = T_EXPLODED;
+                        else if (tile == T_FLAG) tile = T_FLAG_CORRECT;
+                        else tile = T_MINE;
+                    }
+                    else if (tile == T_FLAG) tile = T_FLAG_WRONG;
                 }
             }
             else m_field[mouseFieldIdx] = cntMinesAround(mouseFieldIdx);
@@ -648,11 +656,19 @@ void Game::updateGame(float tElapsed, int guiEvt)
             if (won)
             {
                 m_stateIsPlaying = false;
+                btn_reset->won();
 
                 for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
                 {
-                    const size_t fieldIdx = y * fieldW + x;
-                    if (m_mines[fieldIdx]) m_field[fieldIdx] = T_MINE_FOUND;
+                    const size_t fieldIdx = fieldCoordToFieldIdx(x, y);
+                    auto& tile = m_field[fieldIdx];
+
+                    if (m_mines[fieldIdx])
+                    {
+                        if (tile == T_FLAG) tile = T_FLAG_CORRECT;
+                        else tile = T_MINE_FOUND;
+                    }
+                    else if (tile == T_FLAG) tile = T_FLAG_WRONG;
                 }
             }
         }
@@ -725,6 +741,8 @@ void Game::updateGame(float tElapsed, int guiEvt)
                 else if (fieldVal == T_MINE_FOUND) spr = spr_mineFound;
                 else if (fieldVal == T_EXPLODED) spr = spr_exploded;
                 else if (fieldVal == T_FLAG) spr = spr_flag;
+                else if (fieldVal == T_FLAG_CORRECT) spr = spr_flag_correct;
+                else if (fieldVal == T_FLAG_WRONG) spr = spr_flag_wrong;
                 else spr = spr_error;
 
                 DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, spr);
@@ -734,7 +752,7 @@ void Game::updateGame(float tElapsed, int guiEvt)
 #endif
             }
         }
-            }
+    }
 
     SetPixelMode(pm);
 #pragma endregion
@@ -768,4 +786,4 @@ void Game::updateGame(float tElapsed, int guiEvt)
 #ifdef PRJ_DEBUG
     DrawString(2, 540, mousePos.str(), olc::BLACK);
 #endif
-        }
+}

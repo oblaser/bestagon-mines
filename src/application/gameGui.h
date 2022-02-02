@@ -31,7 +31,9 @@ public:
     ResetButton(const olc::vi2d& pos);
     virtual ~ResetButton() {}
 
-    void gameOver(bool state) { m_gameOver = state; }
+    void gameOver() { m_face = 1; }
+    void resetSmiley() { m_face = 0; }
+    void won() { m_face = 2; }
 
     virtual bool isMouse(const olc::vi2d& mousePos) const;
     virtual void draw(olc::PixelGameEngine* pge, int drawMode);
@@ -41,7 +43,8 @@ private:
     std::unique_ptr<olc::Sprite> spr_expl;
     std::unique_ptr<olc::Sprite> spr_hover;
     std::unique_ptr<olc::Sprite> spr_normal;
-    bool m_gameOver;
+    std::unique_ptr<olc::Sprite> spr_won;
+    int m_face;
 };
 
 

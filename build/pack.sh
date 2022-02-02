@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # author        Oliver Blaser
-# date          01.02.2022
+# date          02.02.2022
 # copyright     OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 
@@ -23,8 +23,10 @@ cp ../assets/smiley.png $outDir/$exeName/assets
 cp ../assets/smiley_click.png $outDir/$exeName/assets
 cp ../assets/smiley_expl.png $outDir/$exeName/assets
 cp ../assets/smiley_hover2.png $outDir/$exeName/assets
+cp ../assets/smiley_won.png $outDir/$exeName/assets
 
 cp ./cmake/$exeName $outDir/$exeName/
+cp ../assets/icon.png $outDir/$exeName/$exeName.png
 
 cp ../license.txt $outDir/$exeName/license.txt
 cp dep_readme.txt $outDir/$exeName/readme.txt
