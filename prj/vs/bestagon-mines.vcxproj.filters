@@ -33,7 +33,7 @@
     <ClCompile Include="..\..\src\resources\sprites.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\application\gui.cpp">
+    <ClCompile Include="..\..\src\application\gameGui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,7 +56,7 @@
     <ClInclude Include="..\..\src\resources\sprites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\application\gui.h">
+    <ClInclude Include="..\..\src\application\gameGui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resources\resources.h">

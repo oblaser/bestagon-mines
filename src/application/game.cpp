@@ -14,14 +14,18 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <vector>
 
 #include "game.h"
-#include "gui.h"
+#include "gameGui.h"
 #include "middleware/util.h"
 #include "project.h"
 
 #include "olcPixelGameEngine.h"
 #ifdef OLC_PLATFORM_WINAPI
-//#include "../prj/vs/resources/resources.h"
 #include <Windows.h>
+#endif
+
+
+#ifdef PRJ_DEBUG
+//#define DRAW_FIELD_CURSER (1) // def/undef
 #endif
 
 
@@ -35,6 +39,7 @@ namespace
     constexpr int32_t fieldPixelW = fieldW * SPR_XOFF;
     constexpr int32_t fieldPixelH = fieldH * SPR_YOFF;
     constexpr double relNMines = 0.16;
+    const vi2d fieldOrig(20, 20);
 
     enum FIELD_VARIANT
     {
@@ -102,10 +107,12 @@ bool Game::OnUserCreate()
 {
 #ifdef OLC_PLATFORM_WINAPI
     HWND hwnd_pge = FindWindowExW(nullptr, nullptr, L"OLC_PIXEL_GAME_ENGINE", nullptr);
-    HICON hicon = LoadIconW(GetModuleHandleW(nullptr), L"AAAAA_MainIcon");
-    //HICON hicon = LoadIconW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_MAINICON));
-    SendMessageW(hwnd_pge, WM_SETICON, ICON_SMALL, (LPARAM)hicon);
-    SendMessageW(hwnd_pge, WM_SETICON, ICON_BIG, (LPARAM)hicon);
+    HICON hicon = LoadIconW(GetModuleHandleW(nullptr), L"AAAAA_MainIcon"); // see prj/vs/resources/resources.rc
+    if (hwnd_pge && hicon)
+    {
+        SendMessageW(hwnd_pge, WM_SETICON, ICON_SMALL, (LPARAM)hicon);
+        SendMessageW(hwnd_pge, WM_SETICON, ICON_BIG, (LPARAM)hicon);
+    }
 #endif
 
     loadSprites();
@@ -120,147 +127,9 @@ bool Game::OnUserUpdate(float tElapsed)
 {
     Clear(olc::Pixel(0xf0, 0xf0, 0xf0));
 
-    m_gui.enable(m_firstClick);
     const int guiEvt = m_gui.update();
 
-    const vi2d fieldOrig(20, 20);
-
-#pragma region input
-    const vi2d mousePos = GetMousePos();
-    const size_t mouseFieldIdx = mousePosToFieldIdx(mousePos, fieldOrig);
-
-    if (GetMouse(olc::Mouse::RIGHT).bPressed) m_mouseRDnFieldIdx = mouseFieldIdx;
-    if (GetMouse(olc::Mouse::RIGHT).bReleased && (mouseFieldIdx == m_mouseRDnFieldIdx) && m_stateIsPlaying && (mouseFieldIdx < m_field.size()) && (m_field[mouseFieldIdx] == T_CLOSED))
-    {
-        m_field[mouseFieldIdx] = T_FLAG;
-    }
-
-    if (GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnFieldIdx = mouseFieldIdx;
-    if (GetMouse(olc::Mouse::LEFT).bReleased && (mouseFieldIdx == m_mouseDnFieldIdx) && m_stateIsPlaying && (mouseFieldIdx < m_field.size()))
-    {
-        if (m_field[mouseFieldIdx] == T_CLOSED)
-        {
-            if (m_firstClick) { m_firstClick = false; distributeField(mouseFieldIdx); }
-
-            if (m_mines[mouseFieldIdx])
-            {
-                m_stateIsPlaying = false;
-                m_gui.btnReset()->gameOver(true);
-
-                for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
-                {
-                    const size_t fieldIdx = y * fieldW + x;
-                    if (m_mines[fieldIdx]) m_field[fieldIdx] = (fieldIdx == mouseFieldIdx ? T_EXPLODED : T_MINE);
-                }
-            }
-            else m_field[mouseFieldIdx] = cntMinesAround(mouseFieldIdx);
-
-            const bool won = discoverCheckField();
-
-            if (won)
-            {
-                m_stateIsPlaying = false;
-
-                for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
-                {
-                    const size_t fieldIdx = y * fieldW + x;
-                    if (m_mines[fieldIdx]) m_field[fieldIdx] = T_MINE_FOUND;
-                }
-            }
-        }
-        else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
-    }
-
-    if (guiEvt)
-    {
-        if (guiEvt == Gui::EVT_RESET_CLICK) reset();
-        else if (guiEvt == Gui::EVT_LEFT_CLICK)
-        {
-            --m_fieldVariant;
-            if (m_fieldVariant < 0) m_fieldVariant = FV__end_ - 1;
-            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
-            reset();
-        }
-        else if (guiEvt == Gui::EVT_RIGHT_CLICK)
-        {
-            ++m_fieldVariant;
-            if (m_fieldVariant >= FV__end_) m_fieldVariant = 0;
-            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
-            reset();
-        }
-        else if (guiEvt == Gui::EVT_ABOUT_CLICK)
-        {
-        }
-    }
-
-#ifdef PRJ_DEBUG
-    if (GetKey(olc::F5).bReleased) bkpt = true;
-    if (GetKey(olc::ESCAPE).bReleased) olc_Terminate();
-#endif
-#pragma endregion
-
-#pragma region draw
-
-    const auto pm = GetPixelMode();
-#if defined(PRJ_DEBUG) && 1
-    SetPixelMode(olc::Pixel::ALPHA);
-#else
-    SetPixelMode(olc::Pixel::MASK);
-#endif
-
-    for (int32_t y = 0; y < (int32_t)fieldH; ++y)
-    {
-        const int32_t xoff = (y & 1 ? SPR_XOFF_OR : 0);
-        for (int32_t x = 0; x < (int32_t)fieldW; ++x)
-        {
-            const size_t fieldIdx = (size_t)y * fieldW + (size_t)x;
-            const auto fieldVal = m_field[fieldIdx];
-
-            if (fieldVal != T_NOSHOW)
-            {
-                olc::Sprite* spr;
-
-                if ((fieldVal >= T_OPEN) && (fieldVal <= T_6)) spr = spr_num[fieldVal];
-                else if (fieldVal == T_CLOSED) spr = spr_closed;
-                else if (fieldVal == T_MINE) spr = spr_mine;
-                else if (fieldVal == T_MINE_FOUND) spr = spr_mineFound;
-                else if (fieldVal == T_EXPLODED) spr = spr_exploded;
-                else if (fieldVal == T_FLAG) spr = spr_flag;
-                else spr = spr_error;
-
-                DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, spr);
-
-#ifdef PRJ_DEBUG
-                if (fieldIdx == mouseFieldIdx) DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, dbg_spr_cursor);
-#endif
-            }
-        }
-    }
-
-    SetPixelMode(pm);
-#pragma endregion
-
-    constexpr int32_t appInfoTxtYOff = 460;
-    DrawString(vi2d(813, appInfoTxtYOff), prj::appName, olc::BLACK); // appName strlen = 14
-    const std::string versionStr = std::string("v") + prj::versionStr;
-    DrawString(vi2d(813 + (14 - (int32_t)versionStr.length()) * 4, appInfoTxtYOff + 10), versionStr, olc::BLACK); // 813 + ((14 - strlen) / 2) * 8
-#ifdef PRJ_DEBUG
-    DrawString(vi2d(813 + (14 - 5) * 4, appInfoTxtYOff + 20), "DEBUG", olc::DARK_RED);
-#endif
-
-#ifdef PRJ_DEBUG
-    if ((mousePos.x >= fieldOrig.x) && (mousePos.x < (fieldOrig.x + fieldPixelW)) &&
-        (mousePos.y >= fieldOrig.y) && (mousePos.y < (fieldOrig.y + fieldPixelH)))
-    {
-        const int32_t fieldIdxY = (mousePos.y - fieldOrig.y) / SPR_YOFF;
-        const int32_t fieldIdxX = (mousePos.x - fieldOrig.x - (fieldIdxY & 1 ? SPR_XOFF_OR : 0)) / SPR_XOFF;
-        DrawRect(fieldOrig.x + (fieldIdxY & 1 ? SPR_XOFF_OR : 0) + SPR_XOFF * fieldIdxX, fieldOrig.y + SPR_YOFF * fieldIdxY, 26, 30, olc::RED);
-    }
-#endif
-
-#ifdef PRJ_DEBUG
-    DrawString(2, 540, mousePos.str(), olc::BLACK);
-#endif
+    if (guiEvt != Gui::EVT_POPUP) updateGame(tElapsed, guiEvt);
 
     return true;
 }
@@ -700,9 +569,9 @@ size_t Game::mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fiel
             {
                 int dbg___x_ = 0;
                 bkpt = false;
-            }
+    }
 #endif
-        }
+}
     }
 
     try
@@ -730,3 +599,171 @@ void Game::reset()
     m_stateIsPlaying = true;
     if (m_gui.btnReset()) m_gui.btnReset()->gameOver(false);
 }
+
+void Game::updateGame(float tElapsed, int guiEvt)
+{
+    m_gui.enable(m_firstClick);
+
+#pragma region input
+
+    const vi2d mousePos = GetMousePos();
+    const size_t mouseFieldIdx = mousePosToFieldIdx(mousePos, fieldOrig);
+
+
+    //
+    // user input and game logic (strictly depending on user input)
+    //
+    if (GetMouse(olc::Mouse::RIGHT).bPressed) m_mouseRDnFieldIdx = mouseFieldIdx;
+    if (GetMouse(olc::Mouse::RIGHT).bReleased && (mouseFieldIdx == m_mouseRDnFieldIdx) && m_stateIsPlaying && (mouseFieldIdx < m_field.size()))
+    {
+        if (m_field[mouseFieldIdx] == T_CLOSED) m_field[mouseFieldIdx] = T_FLAG;
+        else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
+        //else nop
+    }
+
+    if (GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnFieldIdx = mouseFieldIdx;
+    if (GetMouse(olc::Mouse::LEFT).bReleased && (mouseFieldIdx == m_mouseDnFieldIdx) && m_stateIsPlaying && (mouseFieldIdx < m_field.size()))
+    {
+        if (m_field[mouseFieldIdx] == T_CLOSED)
+        {
+            if (m_firstClick) { m_firstClick = false; distributeField(mouseFieldIdx); }
+
+            if (m_mines[mouseFieldIdx])
+            {
+                m_stateIsPlaying = false;
+                m_gui.btnReset()->gameOver(true);
+
+                for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
+                {
+                    const size_t fieldIdx = y * fieldW + x;
+                    if (m_mines[fieldIdx]) m_field[fieldIdx] = (fieldIdx == mouseFieldIdx ? T_EXPLODED : T_MINE);
+                }
+            }
+            else m_field[mouseFieldIdx] = cntMinesAround(mouseFieldIdx);
+
+            const bool won = discoverCheckField();
+
+            if (won)
+            {
+                m_stateIsPlaying = false;
+
+                for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
+                {
+                    const size_t fieldIdx = y * fieldW + x;
+                    if (m_mines[fieldIdx]) m_field[fieldIdx] = T_MINE_FOUND;
+                }
+            }
+        }
+        else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
+        //else nop
+    }
+
+
+    //
+    // GUI events
+    //
+    if (guiEvt)
+    {
+        if (guiEvt == Gui::EVT_RESET_CLICK) reset();
+        else if (guiEvt == Gui::EVT_LEFT_CLICK)
+        {
+            --m_fieldVariant;
+            if (m_fieldVariant < 0) m_fieldVariant = FV__end_ - 1;
+            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
+            reset();
+        }
+        else if (guiEvt == Gui::EVT_RIGHT_CLICK)
+        {
+            ++m_fieldVariant;
+            if (m_fieldVariant >= FV__end_) m_fieldVariant = 0;
+            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
+            reset();
+        }
+    }
+
+
+#ifdef PRJ_DEBUG
+    if (GetKey(olc::F5).bReleased) bkpt = true;
+    if (GetKey(olc::ESCAPE).bReleased) olc_Terminate();
+#endif
+
+#pragma endregion
+
+#pragma region draw
+
+    //
+    // drawing mode
+    //
+    const auto pm = GetPixelMode();
+#if defined(PRJ_DEBUG) && defined(DRAW_FIELD_CURSER)
+    SetPixelMode(olc::Pixel::ALPHA);
+#else
+    SetPixelMode(olc::Pixel::MASK);
+#endif
+
+
+    //
+    // draw field
+    //
+    for (int32_t y = 0; y < (int32_t)fieldH; ++y)
+    {
+        const int32_t xoff = (y & 1 ? SPR_XOFF_OR : 0);
+        for (int32_t x = 0; x < (int32_t)fieldW; ++x)
+        {
+            const size_t fieldIdx = (size_t)y * fieldW + (size_t)x;
+            const auto fieldVal = m_field[fieldIdx];
+
+            if (fieldVal != T_NOSHOW)
+            {
+                olc::Sprite* spr;
+
+                if ((fieldVal >= T_OPEN) && (fieldVal <= T_6)) spr = spr_num[fieldVal];
+                else if (fieldVal == T_CLOSED) spr = spr_closed;
+                else if (fieldVal == T_MINE) spr = spr_mine;
+                else if (fieldVal == T_MINE_FOUND) spr = spr_mineFound;
+                else if (fieldVal == T_EXPLODED) spr = spr_exploded;
+                else if (fieldVal == T_FLAG) spr = spr_flag;
+                else spr = spr_error;
+
+                DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, spr);
+
+#ifdef DRAW_FIELD_CURSER
+                if (fieldIdx == mouseFieldIdx) DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, dbg_spr_cursor);
+#endif
+            }
+        }
+            }
+
+    SetPixelMode(pm);
+#pragma endregion
+
+
+    //
+    // display game name and version
+    //
+    constexpr int32_t appInfoTxtYOff = 460;
+    DrawString(vi2d(813, appInfoTxtYOff), prj::appName, olc::BLACK); // appName strlen = 14
+    const std::string versionStr = std::string("v") + prj::versionStr;
+    DrawString(vi2d(813 + (14 - (int32_t)versionStr.length()) * 4, appInfoTxtYOff + 10), versionStr, olc::BLACK); // 813 + ((14 - strlen) / 2) * 8
+#ifdef PRJ_DEBUG
+    DrawString(vi2d(813 + (14 - 5) * 4, appInfoTxtYOff + 20), "DEBUG", olc::DARK_RED);
+#endif
+
+
+    //
+    // debuging display 
+    //
+#ifdef DRAW_FIELD_CURSER
+    if ((mousePos.x >= fieldOrig.x) && (mousePos.x < (fieldOrig.x + fieldPixelW)) &&
+        (mousePos.y >= fieldOrig.y) && (mousePos.y < (fieldOrig.y + fieldPixelH)))
+    {
+        const int32_t fieldIdxY = (mousePos.y - fieldOrig.y) / SPR_YOFF;
+        const int32_t fieldIdxX = (mousePos.x - fieldOrig.x - (fieldIdxY & 1 ? SPR_XOFF_OR : 0)) / SPR_XOFF;
+        DrawRect(fieldOrig.x + (fieldIdxY & 1 ? SPR_XOFF_OR : 0) + SPR_XOFF * fieldIdxX, fieldOrig.y + SPR_YOFF * fieldIdxY, 26, 30, olc::RED);
+    }
+#endif
+
+#ifdef PRJ_DEBUG
+    DrawString(2, 540, mousePos.str(), olc::BLACK);
+#endif
+        }

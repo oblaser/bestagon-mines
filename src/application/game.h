@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            01.02.2022
+date            02.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -12,7 +12,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <string>
 #include <vector>
 
-#include "gui.h"
+#include "gameGui.h"
 #include "resources/sprites.h"
 
 #include "olcPixelGameEngine.h"
@@ -21,9 +21,11 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 class Game : public olc::PixelGameEngine, protected SpriteOwner
 {
 public:
-    enum TILE_STATUS // order is important!
+    enum TILE_STATUS
     {
         T_NOSHOW = -1,
+
+        // order is important!
         T_OPEN = 0,
         T_1,
         T_2,
@@ -32,6 +34,8 @@ public:
         T_5,
         T_6,
         T_CLOSED,
+        // end important order
+
         T_MINE,
         T_MINE_FOUND,
         T_EXPLODED,
@@ -64,6 +68,7 @@ private:
     void distributeField(size_t clickedIdx);
     size_t mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fieldOrig);
     void reset();
+    void updateGame(float tElapsed, int guiEvt);
 };
 
 

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            01.02.2022
+date            02.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -10,7 +10,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <memory>
 #include <vector>
 
-#include "gui.h"
+#include "gameGui.h"
 #include "project.h"
 
 #include "olcPixelGameEngine.h"

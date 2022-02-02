@@ -9,4 +9,3 @@
 
 // the alphabetical first ICON is used by Windows as app icon
 AAAAA_MainIcon ICON "..\\..\\..\\assets\\icon.ico"
-//IDI_MAINICON ICON "..\\..\\..\\assets\\icon.ico"

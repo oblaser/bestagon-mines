@@ -1,11 +1,11 @@
 /*
 author          Oliver Blaser
-date            01.02.2022
+date            02.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
-#ifndef IG_APP_GUI_H
-#define IG_APP_GUI_H
+#ifndef IG_APP_GAMEGUI_H
+#define IG_APP_GAMEGUI_H
 
 #include <cstddef>
 #include <cstdint>
@@ -112,6 +112,11 @@ public:
     enum EVT
     {
         EVT_NONE = 0,
+
+        // not actually an event, it's a flag indicating
+        // that the gui needs full control over PGE.
+        EVT_POPUP,
+        
         EVT_RESET_CLICK,
         EVT_LEFT_CLICK,
         EVT_RIGHT_CLICK,
@@ -152,4 +157,4 @@ private:
 
 
 
-#endif // IG_APP_GUI_H
+#endif // IG_APP_GAMEGUI_H
