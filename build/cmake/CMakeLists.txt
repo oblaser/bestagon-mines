@@ -1,6 +1,6 @@
 #
 # author        Oliver Blaser
-# date          31.01.2022
+# date          02.02.2022
 # copyright     OLC-3 - Copyright (c) 2022 Oliver Blaser
 #
 
@@ -16,8 +16,10 @@ include_directories(../../src/)
 
 set(SOURCES
 ../../src/application/game.cpp
-../../src/application/gui.cpp
+../../src/application/gameGui.cpp
 ../../src/main.cpp
+../../src/middleware/gui.cpp
+../../src/middleware/guiControls.cpp
 ../../src/middleware/util.cpp
 ../../src/middleware/xpmSprite.cpp
 ../../src/olcPixelGameEngine.cpp

@@ -18,7 +18,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include "olcPixelGameEngine.h"
 
 
-class Game : public olc::PixelGameEngine, protected SpriteOwner
+class Game : public olc::PixelGameEngine, protected SpriteOwner, public GameGui
 {
 public:
     enum TILE_STATUS
@@ -52,7 +52,6 @@ public:
     bool OnUserDestroy() override;
 
 private:
-    Gui m_gui;
     std::vector<int> m_field;
     std::vector<bool> m_mines;
     size_t m_mouseDnFieldIdx;

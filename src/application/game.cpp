@@ -87,7 +87,7 @@ namespace
 
 
 Game::Game()
-    : m_gui(this), m_mouseDnFieldIdx((size_t)-1), m_mouseRDnFieldIdx((size_t)-1), m_firstClick(true), m_fieldVariant(FV_HEX2)
+    : GameGui(this), m_mouseDnFieldIdx((size_t)-1), m_mouseRDnFieldIdx((size_t)-1), m_firstClick(true), m_fieldVariant(FV_HEX2)
 {
     std::string frameTitle = prj::appName;
 
@@ -117,8 +117,8 @@ bool Game::OnUserCreate()
 
     loadSprites();
 
-    m_gui.init();
-    m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
+    GameGui::init();
+    st_fieldName->setLabel(getFieldVarStr(m_fieldVariant));
 
     return true;
 }
@@ -127,9 +127,9 @@ bool Game::OnUserUpdate(float tElapsed)
 {
     Clear(olc::Pixel(0xf0, 0xf0, 0xf0));
 
-    const int guiEvt = m_gui.update();
+    const int guiEvt = GameGui::update();
 
-    if (guiEvt != Gui::EVT_POPUP) updateGame(tElapsed, guiEvt);
+    if (guiEvt != gui::EVT_POPUP) updateGame(tElapsed, guiEvt);
 
     return true;
 }
@@ -597,12 +597,14 @@ void Game::reset()
 
     m_firstClick = true;
     m_stateIsPlaying = true;
-    if (m_gui.btnReset()) m_gui.btnReset()->gameOver(false);
+    if (btn_reset) btn_reset->gameOver(false);
 }
 
 void Game::updateGame(float tElapsed, int guiEvt)
 {
-    m_gui.enable(m_firstClick);
+    if (btn_left) btn_left->enable(m_firstClick);
+    if (st_fieldName) st_fieldName->enable(m_firstClick);
+    if (btn_right) btn_right->enable(m_firstClick);
 
 #pragma region input
 
@@ -631,7 +633,7 @@ void Game::updateGame(float tElapsed, int guiEvt)
             if (m_mines[mouseFieldIdx])
             {
                 m_stateIsPlaying = false;
-                m_gui.btnReset()->gameOver(true);
+                btn_reset->gameOver(true);
 
                 for (size_t y = 0; y < fieldH; ++y) for (size_t x = 0; x < fieldW; ++x)
                 {
@@ -664,19 +666,19 @@ void Game::updateGame(float tElapsed, int guiEvt)
     //
     if (guiEvt)
     {
-        if (guiEvt == Gui::EVT_RESET_CLICK) reset();
-        else if (guiEvt == Gui::EVT_LEFT_CLICK)
+        if (guiEvt == EVT_RESET_CLICK) reset();
+        else if (guiEvt == EVT_LEFT_CLICK)
         {
             --m_fieldVariant;
             if (m_fieldVariant < 0) m_fieldVariant = FV__end_ - 1;
-            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
+            st_fieldName->setLabel(getFieldVarStr(m_fieldVariant));
             reset();
         }
-        else if (guiEvt == Gui::EVT_RIGHT_CLICK)
+        else if (guiEvt == EVT_RIGHT_CLICK)
         {
             ++m_fieldVariant;
             if (m_fieldVariant >= FV__end_) m_fieldVariant = 0;
-            m_gui.stFieldName()->setLabel(getFieldVarStr(m_fieldVariant));
+            st_fieldName->setLabel(getFieldVarStr(m_fieldVariant));
             reset();
         }
     }

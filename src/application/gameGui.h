@@ -13,6 +13,8 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <string>
 #include <vector>
 
+#include "middleware/gui.h"
+#include "middleware/guiControls.h"
 #include "middleware/util.h"
 #include "project.h"
 
@@ -20,58 +22,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 
 
-#pragma region internal
-
-class Control
-{
-public:
-    enum DRAW_MODE
-    {
-        DM_NORMAL = 0,
-        DM_HOVER, // mouse hover
-        DM_DOWN // mouse down
-    };
-
-public:
-    Control() : m_enabled(true), m_id(-1), m_pos(-1, -1) {}
-    Control(const olc::vi2d& pos) : m_enabled(true), m_id(-1), m_pos(pos) {}
-    Control(int id, const olc::vi2d& pos) : m_enabled(true), m_id(id), m_pos(pos) {}
-    virtual ~Control() {}
-
-    int id() const { return m_id; }
-    bool isEnabled() const { return m_enabled; }
-    const olc::vi2d& pos() const { return m_pos; }
-
-    void enable(bool state = true) { m_enabled = state; }
-    void disable() { enable(false); }
-    void setId(int id) { m_id = id; }
-
-    virtual bool isMouse(const olc::vi2d& mousePos) const = 0;
-    virtual void draw(olc::PixelGameEngine* pge, int drawMode) = 0;
-
-protected:
-    bool m_enabled;
-    int m_id;
-    olc::vi2d m_pos;
-};
-
-class StaticText : public Control
-{
-public:
-    StaticText(const olc::vi2d& pos, const std::string& label);
-    virtual ~StaticText() {}
-
-    void setLabel(const std::string& label);
-
-    virtual bool isMouse(const olc::vi2d& mousePos) const;
-    virtual void draw(olc::PixelGameEngine* pge, int drawMode);
-
-protected:
-    std::string m_label;
-    olc::vi2d m_size;
-};
-
-class ResetButton : public Control
+class ResetButton : public gui::Control
 {
 public:
     static constexpr int32_t radius = 18;
@@ -93,66 +44,32 @@ private:
     bool m_gameOver;
 };
 
-class StringButton : public StaticText
-{
-public:
-    StringButton(const olc::vi2d& pos, const std::string& label);
-    virtual ~StringButton() {}
 
-    virtual void draw(olc::PixelGameEngine* pge, int drawMode);
+
+enum GUI_EVENTS
+{
+    EVT_RESET_CLICK = gui::EVT__begin_custon,
+    EVT_LEFT_CLICK,
+    EVT_RIGHT_CLICK,
+    EVT_ABOUT_CLICK
 };
 
-#pragma endregion
-
-
-
-class Gui
+class GameGui : public gui::Manager
 {
 public:
-    enum EVT
-    {
-        EVT_NONE = 0,
-
-        // not actually an event, it's a flag indicating
-        // that the gui needs full control over PGE.
-        EVT_POPUP,
-        
-        EVT_RESET_CLICK,
-        EVT_LEFT_CLICK,
-        EVT_RIGHT_CLICK,
-        EVT_ABOUT_CLICK
-    };
-
-public:
-    Gui(olc::PixelGameEngine* pge);
-    ~Gui();
-
-    void init();
-
-    void enable(bool state);
-    ResetButton*& btnReset() { return btn_reset; }
-    StaticText*& stFieldName() { return st_fieldName; }
-
-    int update();
-
+    using gui::Manager::Manager; // same ctors as gui::Manager
+    virtual ~GameGui() {}
+protected:
+    virtual int update();
 private:
-    int m_mouseDnId;
-    olc::PixelGameEngine* const m_pge = nullptr;
+    virtual void initControls();
 
+protected:
     ResetButton* btn_reset = nullptr;
-    StringButton* btn_left = nullptr;
-    StaticText* st_fieldName = nullptr;
-    StringButton* btn_right = nullptr;
-    StringButton* btn_about = nullptr;
-
-    void initControls();
-
-private:
-    std::vector<Control*> m_ctrl;
-    void ctrl_add(Control* ctrl);
-    int ctrl_getId(const olc::vi2d& mousePos);
-    int ctrl_getNewId();
-    void ctrl_draw(int mouseHoverId);
+    gui::StringButton* btn_left = nullptr;
+    gui::StaticText* st_fieldName = nullptr;
+    gui::StringButton* btn_right = nullptr;
+    gui::StringButton* btn_about = nullptr;
 };
 
 
