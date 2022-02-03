@@ -8,9 +8,11 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "gameGui.h"
+#include "middleware/util.h"
 #include "project.h"
 
 #include "olcPixelGameEngine.h"
@@ -95,27 +97,34 @@ int GameGui::update()
 {
     int evt = gui::EVT_NONE;
 
-    const vi2d mousePos = m_pge->GetMousePos();
-    const int mouseHoverId = ctrl_getId(mousePos);
-
-    if (m_pge->GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnId = mouseHoverId;
-    if (m_pge->GetMouse(olc::Mouse::LEFT).bReleased)
+    if (m_dispPage == P_GAME)
     {
-        //if ((mouseHoverId == m_mouseDnId) && (mouseHoverId >= ctrlStartId))
-        if (mouseHoverId == m_mouseDnId)
+        const vi2d mousePos = m_pge->GetMousePos();
+        const int mouseHoverId = ctrl_getId(mousePos);
+
+        if (m_pge->GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnId = mouseHoverId;
+        if (m_pge->GetMouse(olc::Mouse::LEFT).bReleased)
         {
-            if (btn_reset->getId() == mouseHoverId) evt = EVT_RESET_CLICK;
-            if (btn_left->getId() == mouseHoverId) evt = EVT_LEFT_CLICK;
-            if (btn_right->getId() == mouseHoverId) evt = EVT_RIGHT_CLICK;
-            if (btn_about->getId() == mouseHoverId) evt = EVT_ABOUT_CLICK;
+            if (mouseHoverId == m_mouseDnId)
+            {
+                if (btn_reset->getId() == mouseHoverId) evt = EVT_RESET_CLICK;
+                if (btn_left->getId() == mouseHoverId) evt = EVT_LEFT_CLICK;
+                if (btn_right->getId() == mouseHoverId) evt = EVT_RIGHT_CLICK;
+                if (btn_about->getId() == mouseHoverId) m_dispPage = P_ABOUT;
+            }
+
+            m_mouseDnId = -1;
         }
 
-        m_mouseDnId = -1;
+        ctrl_draw(mouseHoverId);
     }
-
-    m_pge->DrawString(722, 540, std::to_string(mousePos.x) + " " + std::to_string(mousePos.y));
-
-    ctrl_draw(mouseHoverId);
+    else if (m_dispPage == P_ABOUT)
+    {
+        evt = gui::EVT_POPUP;
+        const int evtAbout = p_about.get()->update();
+        if (evtAbout == AboutGui::EVT_BACK) m_dispPage = P_GAME;
+    }
+    else m_pge->DrawString(2, 2, "ERROR: " + std::string(OMW__FILENAME__) + ":" + std::to_string(__LINE__), olc::DARK_MAGENTA, 2);
 
     return evt;
 }
@@ -142,8 +151,86 @@ void GameGui::initControls()
 
 
     btn_about = new gui::StringButton(vi2d(830, 250), "about");
-#ifndef PRJ_DEBUG
-    btn_about->disable();
-#endif
     addControl(btn_about);
+
+
+
+    p_about = std::make_unique<AboutGui>(m_pge);
+    p_about.get()->init();
+}
+
+
+
+int AboutGui::update()
+{
+    int evt = gui::EVT_NONE;
+
+    const vi2d mousePos = m_pge->GetMousePos();
+    const int mouseHoverId = ctrl_getId(mousePos);
+
+    if (m_pge->GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnId = mouseHoverId;
+    if (m_pge->GetMouse(olc::Mouse::LEFT).bReleased)
+    {
+        if (mouseHoverId == m_mouseDnId)
+        {
+            if (btn_webpage->getId() == mouseHoverId) util::openUrl(prj::website);
+            if (btn_olcWebpage->getId() == mouseHoverId) util::openUrl("https://github.com/OneLoneCoder/olcPixelGameEngine");
+            if (btn_back->getId() == mouseHoverId) evt = EVT_BACK;
+        }
+
+        m_mouseDnId = -1;
+    }
+
+    // draw border
+    {
+        constexpr int32_t width = 5;
+        constexpr int32_t margin = 30 - width / 2;
+        const int32_t scrnW = m_pge->ScreenWidth();
+        const int32_t scrnH = m_pge->ScreenHeight();
+        const olc::Pixel px(0xa0, 0xa0, 0xa0);
+
+        const vi2d horizTopSize(390, width);
+        const vi2d horizBottomSize(scrnW - 2 * margin, width);
+        const vi2d vertSize(width, scrnH - 2 * (width + margin));
+
+        m_pge->FillRect(vi2d(margin, margin), horizTopSize, px);
+        m_pge->FillRect(vi2d(scrnW - margin - horizTopSize.x, margin), horizTopSize, px);
+        m_pge->FillRect(vi2d(margin, scrnH - margin - width), horizBottomSize, px);
+
+        m_pge->FillRect(vi2d(margin, margin + width), vertSize, px);
+        m_pge->FillRect(vi2d(scrnW - margin - width, margin + width), vertSize, px);
+    }
+
+    ctrl_draw(mouseHoverId);
+
+    return evt;
+}
+
+void AboutGui::initControls()
+{
+    const int32_t scrnW = m_pge->ScreenWidth();
+    const int32_t scrnH = m_pge->ScreenHeight();
+
+    gui::StaticText* st;
+    vi2d stSize;
+
+    st = new gui::StaticText(vi2d(), "About");
+    stSize = st->getSize();
+    st->setPos(scrnW / 2 - stSize.x / 2, 22);
+    addControl(st);
+
+    btn_webpage = new gui::StringButton(vi2d(50, 80), "< " + std::string(prj::website) + " >");
+    addControl(btn_webpage);
+
+
+    // https://community.onelonecoder.com/2020/05/20/how-to-attribute-credit-cite-the-olcpixelgameengine/
+
+
+    btn_olcWebpage = new gui::StringButton(vi2d(50, 100), "< olcPixelGameEngine >");
+    addControl(btn_olcWebpage);
+
+
+
+    btn_back = new gui::StringButton(vi2d(50, 400), "< back >");
+    addControl(btn_back);
 }

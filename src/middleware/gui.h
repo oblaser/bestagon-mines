@@ -42,8 +42,9 @@ namespace gui
         Manager(olc::PixelGameEngine* pge);
         virtual ~Manager();
 
-    protected:
         void init();
+
+    protected:
         virtual int update() = 0;
         virtual void initControls() = 0;
 

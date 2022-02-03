@@ -40,6 +40,8 @@ namespace gui
         void enable(bool state = true) { m_enabled = state; }
         void disable() { enable(false); }
         void setId(int id) { m_id = id; }
+        void setPos(const olc::vi2d& pos) { m_pos = pos; }
+        void setPos(int32_t x, int32_t y) { m_pos = olc::vi2d(x, y); }
 
         bool isEnabled() const { return m_enabled; }
 
@@ -59,6 +61,8 @@ namespace gui
     public:
         StaticText(const olc::vi2d& pos, const std::string& label);
         virtual ~StaticText() {}
+
+        const olc::vi2d& getSize() const { return m_size; }
 
         void setLabel(const std::string& label);
 

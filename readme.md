@@ -1,6 +1,11 @@
 # Bestagon Mines
 
+![](./assets/bestagon-mines.jpg)
+
 > Using olc::PixelGameEngine, see [License](#license).
+
+
+My intro/"Hello World" project with the olcPGE.
 
 
 

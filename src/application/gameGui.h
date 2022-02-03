@@ -49,12 +49,36 @@ private:
 
 
 
+class AboutGui : public gui::Manager
+{
+public:
+    enum EVENTS
+    {
+        EVT_BACK = gui::EVT__begin_custon
+    };
+
+public:
+    using gui::Manager::Manager; // same ctors as gui::Manager
+    virtual ~AboutGui() {}
+
+    virtual int update();
+
+private:
+    virtual void initControls();
+
+protected:
+    gui::StringButton* btn_webpage = nullptr;
+    gui::StringButton* btn_olcWebpage = nullptr;
+    gui::StringButton* btn_back = nullptr;
+};
+
+
+
 enum GUI_EVENTS
 {
     EVT_RESET_CLICK = gui::EVT__begin_custon,
     EVT_LEFT_CLICK,
-    EVT_RIGHT_CLICK,
-    EVT_ABOUT_CLICK
+    EVT_RIGHT_CLICK
 };
 
 class GameGui : public gui::Manager
@@ -62,8 +86,10 @@ class GameGui : public gui::Manager
 public:
     using gui::Manager::Manager; // same ctors as gui::Manager
     virtual ~GameGui() {}
+
 protected:
     virtual int update();
+
 private:
     virtual void initControls();
 
@@ -73,8 +99,19 @@ protected:
     gui::StaticText* st_fieldName = nullptr;
     gui::StringButton* btn_right = nullptr;
     gui::StringButton* btn_about = nullptr;
-};
 
+private: // pages, frames, panels, or what ever...
+    std::unique_ptr<AboutGui> p_about;
+
+    enum DISPLAY_PAGE
+    {
+        P_GAME = 0,
+        P_ABOUT,
+        P__end_
+    };
+    
+    int m_dispPage = P_GAME;
+};
 
 
 #endif // IG_APP_GAMEGUI_H

@@ -25,6 +25,7 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 
 #ifdef PRJ_DEBUG
+//#define CHEAT_SHOW_MINES (1) // def/undef
 //#define DRAW_FIELD_CURSER (1) // def/undef
 #endif
 
@@ -38,7 +39,7 @@ namespace
     constexpr size_t fieldH = 25;
     constexpr int32_t fieldPixelW = fieldW * SPR_XOFF;
     constexpr int32_t fieldPixelH = fieldH * SPR_YOFF;
-    constexpr double relNMines = 0.16;
+    constexpr double relNMines = 0.2;
     const vi2d fieldOrig(20, 20);
 
     enum FIELD_VARIANT
@@ -746,6 +747,10 @@ void Game::updateGame(float tElapsed, int guiEvt)
                 else spr = spr_error;
 
                 DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, spr);
+
+#if defined(PRJ_DEBUG) && defined(CHEAT_SHOW_MINES) // cheat show mines
+                if (m_mines[fieldIdx]) DrawCircle(fieldOrig.x + xoff + SPR_XOFF * x + 12, fieldOrig.y + SPR_YOFF * y + 14, 9, olc::DARK_RED);
+#endif
 
 #ifdef DRAW_FIELD_CURSER
                 if (fieldIdx == mouseFieldIdx) DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, dbg_spr_cursor);

@@ -1,14 +1,22 @@
 /*
 author          Oliver Blaser
-date            28.01.2022
+date            02.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
 #include "util.h"
 
 #include "olcPixelGameEngine.h"
+#ifdef OLC_PLATFORM_WINAPI
+#include <Windows.h>
+#endif
 
 
 
@@ -57,4 +65,20 @@ std::vector<olc::vf2d> util::rotScaleTransl(const std::vector<olc::vf2d>& points
     r.shrink_to_fit();
 
     return r;
+}
+
+
+
+void util::openUrl(const std::string& url)
+{
+#if defined(OLC_PLATFORM_WINAPI)
+    ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+#elif defined(OLC_PLATFORM_X11)
+    system(("xdg-open " + url + " > /dev/null 2>&1 &").c_str());
+#endif
+
+    // maybe in the future:
+    // to generate a return code see
+    // - https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecutea
+    // - https://man7.org/linux/man-pages/man3/system.3.html
 }
