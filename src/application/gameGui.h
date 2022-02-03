@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            02.02.2022
+date            03.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -100,7 +100,7 @@ protected:
     gui::StringButton* btn_right = nullptr;
     gui::StringButton* btn_about = nullptr;
 
-private: // pages, frames, panels, or what ever...
+private: // pages, frames, panels, or what ever they're called
     std::unique_ptr<AboutGui> p_about;
 
     enum DISPLAY_PAGE

@@ -39,7 +39,7 @@ namespace
     constexpr size_t fieldH = 25;
     constexpr int32_t fieldPixelW = fieldW * SPR_XOFF;
     constexpr int32_t fieldPixelH = fieldH * SPR_YOFF;
-    constexpr double relNMines = 0.2;
+    constexpr double relNMines = 0.18;
     const vi2d fieldOrig(20, 20);
 
     enum FIELD_VARIANT

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            02.02.2022
+date            03.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -51,7 +51,7 @@ void gui::StaticText::draw(olc::PixelGameEngine* pge, int drawMode)
 
     if (m_enabled)
     {
-        pge->DrawString(m_pos + offs, m_label, olc::Pixel(0, 0, 0), 2);
+        pge->DrawString(m_pos + offs, m_label, m_color, 2);
     }
     else pge->DrawString(m_pos + offs, m_label, olc::Pixel(0xC8, 0xC8, 0xC8), 2);
 
@@ -75,7 +75,7 @@ void gui::StringButton::draw(olc::PixelGameEngine* pge, int drawMode)
     {
         if (drawMode == gui::Control::MOUSE_HOVER) pge->DrawString(m_pos + offs, m_label, olc::Pixel(0x69, 0x69, 0x69), 2);
         else if (drawMode == gui::Control::MOUSE_DOWN) pge->DrawString(m_pos + offs, m_label, olc::Pixel(0xC8, 0xC8, 0xC8), 2);
-        else pge->DrawString(m_pos + offs, m_label, olc::Pixel(0, 0, 0), 2);
+        else pge->DrawString(m_pos + offs, m_label, m_color, 2);
     }
     else pge->DrawString(m_pos + offs, m_label, olc::Pixel(0xC8, 0xC8, 0xC8), 2);
 

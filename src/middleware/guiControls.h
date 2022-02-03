@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            02.02.2022
+date            03.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -62,14 +62,17 @@ namespace gui
         StaticText(const olc::vi2d& pos, const std::string& label);
         virtual ~StaticText() {}
 
+        const olc::Pixel& getColor() const { return m_color; }
         const olc::vi2d& getSize() const { return m_size; }
 
+        void setColor(const olc::Pixel& col) { m_color = col; }
         void setLabel(const std::string& label);
 
         virtual bool isMouse(const olc::vi2d& mousePos) const;
         virtual void draw(olc::PixelGameEngine* pge, int drawMode);
 
     protected:
+        olc::Pixel m_color;
         std::string m_label;
         olc::vi2d m_size;
     };
