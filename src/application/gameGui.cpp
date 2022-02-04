@@ -261,7 +261,12 @@ void GameGui::initControls()
 
 
 
-    constexpr int32_t arrowYPos = 150;
+    st_nRemaining = new gui::StaticText(vi2d(1000 - 130, 100), "");
+    addControl(st_nRemaining);
+
+
+
+    constexpr int32_t arrowYPos = 180;
     constexpr int32_t arrowMargin = 40;
 
     btn_left = new gui::StringButton(vi2d(740 + arrowMargin, arrowYPos), "<");
@@ -275,7 +280,7 @@ void GameGui::initControls()
 
 
 
-    btn_about = new gui::StringButton(vi2d(830, 250), "about");
+    btn_about = new gui::StringButton(vi2d(830, 280), "about");
     addControl(btn_about);
 
 

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            02.02.2022
+date            03.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -65,11 +65,12 @@ private:
     int cntMinesAround(size_t fieldIdx);
     int cntMinesAround(int32_t x, int32_t y);
     void createField();
-    bool discoverCheckField();
+    bool iterateField();
     void distributeField(size_t clickedIdx);
     size_t mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fieldOrig);
     void reset();
     void updateGame(float tElapsed, int guiEvt);
+    void updateRemaining();
 };
 
 

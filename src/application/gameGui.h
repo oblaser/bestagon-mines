@@ -95,6 +95,7 @@ private:
 
 protected:
     ResetButton* btn_reset = nullptr;
+    gui::StaticText* st_nRemaining = nullptr;
     gui::StringButton* btn_left = nullptr;
     gui::StaticText* st_fieldName = nullptr;
     gui::StringButton* btn_right = nullptr;

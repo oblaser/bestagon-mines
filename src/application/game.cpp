@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            02.02.2022
+date            03.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -411,9 +411,11 @@ void Game::createField()
 }
 
 // 
-// returns `true` if all safe tiles are opened
+// Iterates througth the field and does
+// - auto open null tiles and their neighbours
+// - return `true` if all safe tiles are opened
 // 
-bool Game::discoverCheckField()
+bool Game::iterateField()
 {
     bool foundAllSafe = true;
     int32_t cntLoops = 0;
@@ -546,7 +548,7 @@ size_t Game::mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fiel
                 else if (sprScan == scanTR) { --fieldCoordY; ++fieldCoordX; }
                 else if (sprScan == scanBL) ++fieldCoordY;
                 else if (sprScan == scanBR) { ++fieldCoordY; ++fieldCoordX; }
-            }
+        }
             else
             {
                 if (sprScan == scanTL)
@@ -599,6 +601,7 @@ void Game::reset()
     m_firstClick = true;
     m_stateIsPlaying = true;
     if (btn_reset) btn_reset->resetSmiley();
+    if (st_nRemaining) st_nRemaining->setLabel("");
 }
 
 void Game::updateGame(float tElapsed, int guiEvt)
@@ -619,9 +622,14 @@ void Game::updateGame(float tElapsed, int guiEvt)
     if (GetMouse(olc::Mouse::RIGHT).bPressed) m_mouseRDnFieldIdx = mouseFieldIdx;
     if (GetMouse(olc::Mouse::RIGHT).bReleased && (mouseFieldIdx == m_mouseRDnFieldIdx) && m_stateIsPlaying && (mouseFieldIdx < m_field.size()))
     {
-        if (m_field[mouseFieldIdx] == T_CLOSED) m_field[mouseFieldIdx] = T_FLAG;
-        else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
-        //else nop
+        if (!m_firstClick)
+        {
+            if (m_field[mouseFieldIdx] == T_CLOSED) m_field[mouseFieldIdx] = T_FLAG;
+            else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
+            //else nop
+        }
+
+        updateRemaining();
     }
 
     if (GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnFieldIdx = mouseFieldIdx;
@@ -652,7 +660,7 @@ void Game::updateGame(float tElapsed, int guiEvt)
             }
             else m_field[mouseFieldIdx] = cntMinesAround(mouseFieldIdx);
 
-            const bool won = discoverCheckField();
+            const bool won = iterateField();
 
             if (won)
             {
@@ -675,6 +683,8 @@ void Game::updateGame(float tElapsed, int guiEvt)
         }
         else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
         //else nop
+
+        updateRemaining();
     }
 
 
@@ -791,4 +801,23 @@ void Game::updateGame(float tElapsed, int guiEvt)
 #ifdef PRJ_DEBUG
     DrawString(2, 540, mousePos.str(), olc::BLACK);
 #endif
+}
+
+void Game::updateRemaining()
+{
+    int nFlags = 0;
+    int nMines = 0;
+
+    for (int32_t x = 0; x < fieldW; ++x)
+    {
+        for (int32_t y = 0; y < fieldH; ++y)
+        {
+            const size_t idx = fieldCoordToFieldIdx(x, y);
+
+            if (m_field[idx] == T_FLAG) ++nFlags;
+            if (m_mines[idx]) ++nMines;
+        }
+    }
+
+    st_nRemaining->setLabel(std::to_string(nMines - nFlags));
 }
