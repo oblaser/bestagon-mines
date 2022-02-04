@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            03.02.2022
+date            04.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -78,7 +78,9 @@ enum GUI_EVENTS
 {
     EVT_RESET_CLICK = gui::EVT__begin_custon,
     EVT_LEFT_CLICK,
-    EVT_RIGHT_CLICK
+    EVT_RIGHT_CLICK,
+    EVT_RNM_DN_CLICK,
+    EVT_RNM_UP_CLICK
 };
 
 class GameGui : public gui::Manager
@@ -96,9 +98,15 @@ private:
 protected:
     ResetButton* btn_reset = nullptr;
     gui::StaticText* st_nRemaining = nullptr;
+
     gui::StringButton* btn_left = nullptr;
     gui::StaticText* st_fieldName = nullptr;
     gui::StringButton* btn_right = nullptr;
+
+    gui::StringButton* btn_rnmDn = nullptr;
+    gui::StaticText* st_rnm = nullptr;
+    gui::StringButton* btn_rnmUp = nullptr;
+
     gui::StringButton* btn_about = nullptr;
 
 private: // pages, frames, panels, or what ever they're called

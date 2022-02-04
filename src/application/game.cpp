@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            03.02.2022
+date            04.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -9,7 +9,9 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -39,7 +41,8 @@ namespace
     constexpr size_t fieldH = 25;
     constexpr int32_t fieldPixelW = fieldW * SPR_XOFF;
     constexpr int32_t fieldPixelH = fieldH * SPR_YOFF;
-    constexpr double relNMines = 0.18;
+    constexpr double default_relNMines = 0.18;
+    constexpr double relNMines_step = 0.005;
     const vi2d fieldOrig(20, 20);
 
     enum FIELD_VARIANT
@@ -62,7 +65,7 @@ namespace
         "HEX 1",
         "HEX 2",
         "HEX 3",
-        " RING"
+        "RING"
     };
     std::string getFieldVarStr(int fv)
     {
@@ -80,6 +83,13 @@ namespace
         y = idx / fieldW;
     }
 
+    std::string relNMinesStr(double val)
+    {
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1) << val;
+        return ss.str();
+    }
+
 #ifdef PRJ_DEBUG
     bool bkpt = false;
 #endif
@@ -88,7 +98,7 @@ namespace
 
 
 Game::Game()
-    : GameGui(this), m_mouseDnFieldIdx((size_t)-1), m_mouseRDnFieldIdx((size_t)-1), m_firstClick(true), m_fieldVariant(FV_HEX2)
+    : GameGui(this), m_mouseDnFieldIdx((size_t)-1), m_mouseRDnFieldIdx((size_t)-1), m_firstClick(true), m_fieldVariant(FV_HEX2), m_relNMines(default_relNMines)
 {
     std::string frameTitle = prj::appName;
 
@@ -120,6 +130,7 @@ bool Game::OnUserCreate()
 
     GameGui::init();
     st_fieldName->setLabel(getFieldVarStr(m_fieldVariant));
+    st_rnm->setLabel(relNMinesStr(m_relNMines * 100) + "%");
 
     return true;
 }
@@ -496,7 +507,7 @@ void Game::distributeField(size_t clickedIdx)
         }
     }
 
-    size_t nMines = (size_t)(nTiles * relNMines);
+    size_t nMines = (size_t)std::round(nTiles * m_relNMines);
 
     std::srand((unsigned int)std::time(nullptr));
 
@@ -548,7 +559,7 @@ size_t Game::mousePosToFieldIdx(const olc::vi2d& mousePos, const olc::vi2d& fiel
                 else if (sprScan == scanTR) { --fieldCoordY; ++fieldCoordX; }
                 else if (sprScan == scanBL) ++fieldCoordY;
                 else if (sprScan == scanBR) { ++fieldCoordY; ++fieldCoordX; }
-        }
+            }
             else
             {
                 if (sprScan == scanTL)
@@ -609,6 +620,9 @@ void Game::updateGame(float tElapsed, int guiEvt)
     if (btn_left) btn_left->enable(m_firstClick);
     if (st_fieldName) st_fieldName->enable(m_firstClick);
     if (btn_right) btn_right->enable(m_firstClick);
+    if (btn_rnmDn) btn_rnmDn->enable(m_firstClick);
+    if (st_rnm) st_rnm->enable(m_firstClick);
+    if (btn_rnmUp) btn_rnmUp->enable(m_firstClick);
 
 #pragma region input
 
@@ -627,9 +641,9 @@ void Game::updateGame(float tElapsed, int guiEvt)
             if (m_field[mouseFieldIdx] == T_CLOSED) m_field[mouseFieldIdx] = T_FLAG;
             else if (m_field[mouseFieldIdx] == T_FLAG) m_field[mouseFieldIdx] = T_CLOSED;
             //else nop
-        }
 
-        updateRemaining();
+            updateRemaining();
+        }
     }
 
     if (GetMouse(olc::Mouse::LEFT).bPressed) m_mouseDnFieldIdx = mouseFieldIdx;
@@ -708,6 +722,16 @@ void Game::updateGame(float tElapsed, int guiEvt)
             st_fieldName->setLabel(getFieldVarStr(m_fieldVariant));
             reset();
         }
+        else if (guiEvt == EVT_RNM_DN_CLICK)
+        {
+            if (m_relNMines > 0.05) m_relNMines -= relNMines_step;
+            st_rnm->setLabel(relNMinesStr(m_relNMines * 100) + "%");
+        }
+        else if (guiEvt == EVT_RNM_UP_CLICK)
+        {
+            if (m_relNMines < 0.5) m_relNMines += relNMines_step;
+            st_rnm->setLabel(relNMinesStr(m_relNMines * 100) + "%");
+        }
     }
 
 
@@ -766,8 +790,8 @@ void Game::updateGame(float tElapsed, int guiEvt)
                 if (fieldIdx == mouseFieldIdx) DrawSprite(fieldOrig.x + xoff + SPR_XOFF * x, fieldOrig.y + SPR_YOFF * y, dbg_spr_cursor);
 #endif
             }
+            }
         }
-    }
 
     SetPixelMode(pm);
 #pragma endregion
@@ -801,7 +825,7 @@ void Game::updateGame(float tElapsed, int guiEvt)
 #ifdef PRJ_DEBUG
     DrawString(2, 540, mousePos.str(), olc::BLACK);
 #endif
-}
+    }
 
 void Game::updateRemaining()
 {

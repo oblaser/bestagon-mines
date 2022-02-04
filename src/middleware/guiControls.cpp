@@ -25,8 +25,8 @@ namespace
 
 
 #pragma region StaticText
-gui::StaticText::StaticText(const olc::vi2d& pos, const std::string& label)
-    : Control(pos), m_label(), m_size()
+gui::StaticText::StaticText(const olc::vi2d& pos, const std::string& label, int style)
+    : Control(pos), m_label(), m_size(), m_style(style)
 {
     setLabel(label);
 }
@@ -39,15 +39,17 @@ void gui::StaticText::setLabel(const std::string& label)
 
 bool gui::StaticText::isMouse(const olc::vi2d& mousePos) const
 {
+    const vi2d pos = m_pos + (m_style & gui::ALIGN_CENTER_HORIZONTAL ? vi2d(-(m_size.x / 2), 0) : vi2d(0, 0));
+
     return (
-        (mousePos.x >= m_pos.x) && (mousePos.x <= (m_pos.x + m_size.x)) &&
-        (mousePos.y >= m_pos.y) && (mousePos.y <= (m_pos.y + m_size.y))
+        (mousePos.x >= pos.x) && (mousePos.x <= (pos.x + m_size.x)) &&
+        (mousePos.y >= pos.y) && (mousePos.y <= (pos.y + m_size.y))
         ) && m_enabled;
 }
 
 void gui::StaticText::draw(olc::PixelGameEngine* pge, int drawMode)
 {
-    const vi2d offs(2, 2);
+    const vi2d offs = vi2d(2, 2) + (m_style & gui::ALIGN_CENTER_HORIZONTAL ? vi2d(-(m_size.x / 2), 0) : vi2d(0, 0));
 
     if (m_enabled)
     {
@@ -63,13 +65,13 @@ void gui::StaticText::draw(olc::PixelGameEngine* pge, int drawMode)
 
 
 #pragma region StringButton
-gui::StringButton::StringButton(const olc::vi2d& pos, const std::string& label)
-    : StaticText(pos, label)
+gui::StringButton::StringButton(const olc::vi2d& pos, const std::string& label, int style)
+    : StaticText(pos, label, style)
 {}
 
 void gui::StringButton::draw(olc::PixelGameEngine* pge, int drawMode)
 {
-    const vi2d offs(2, 2);
+    const vi2d offs = vi2d(2, 2) + (m_style & gui::ALIGN_CENTER_HORIZONTAL ? vi2d(-(m_size.x / 2), 0) : vi2d(0, 0));
 
     if (m_enabled)
     {

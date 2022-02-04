@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            03.02.2022
+date            04.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -235,6 +235,8 @@ int GameGui::update()
                 if (btn_reset->getId() == mouseHoverId) evt = EVT_RESET_CLICK;
                 if (btn_left->getId() == mouseHoverId) evt = EVT_LEFT_CLICK;
                 if (btn_right->getId() == mouseHoverId) evt = EVT_RIGHT_CLICK;
+                if (btn_rnmDn->getId() == mouseHoverId) evt = EVT_RNM_DN_CLICK;
+                if (btn_rnmUp->getId() == mouseHoverId) evt = EVT_RNM_UP_CLICK;
                 if (btn_about->getId() == mouseHoverId) m_dispPage = P_ABOUT;
             }
 
@@ -256,12 +258,14 @@ int GameGui::update()
 
 void GameGui::initControls()
 {
-    btn_reset = new ResetButton(vi2d(1000 - 130, 60));
+    constexpr int32_t xCenter = 1000 - 130;
+
+    btn_reset = new ResetButton(vi2d(xCenter, 60));
     addControl(btn_reset);
 
 
 
-    st_nRemaining = new gui::StaticText(vi2d(1000 - 130, 100), "");
+    st_nRemaining = new gui::StaticText(vi2d(xCenter, 100), "", gui::ALIGN_CENTER_HORIZONTAL);
     addControl(st_nRemaining);
 
 
@@ -272,15 +276,26 @@ void GameGui::initControls()
     btn_left = new gui::StringButton(vi2d(740 + arrowMargin, arrowYPos), "<");
     addControl(btn_left);
 
-    st_fieldName = new gui::StaticText(vi2d(822, arrowYPos), "###");
+    st_fieldName = new gui::StaticText(vi2d(xCenter, arrowYPos), "###", gui::ALIGN_CENTER_HORIZONTAL);
     addControl(st_fieldName);
 
     btn_right = new gui::StringButton(vi2d(1000 - arrowMargin - 16, arrowYPos), ">");
     addControl(btn_right);
 
+    constexpr int32_t rnmYPos = arrowYPos + 40;
+
+    btn_rnmDn = new gui::StringButton(vi2d(740 + arrowMargin, rnmYPos), "<");
+    addControl(btn_rnmDn);
+
+    st_rnm = new gui::StaticText(vi2d(xCenter, rnmYPos), "%", gui::ALIGN_CENTER_HORIZONTAL);
+    addControl(st_rnm);
+
+    btn_rnmUp = new gui::StringButton(vi2d(1000 - arrowMargin - 16, rnmYPos), ">");
+    addControl(btn_rnmUp);
 
 
-    btn_about = new gui::StringButton(vi2d(830, 280), "about");
+
+    btn_about = new gui::StringButton(vi2d(xCenter, 280), "about", gui::ALIGN_CENTER_HORIZONTAL);
     addControl(btn_about);
 
 

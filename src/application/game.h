@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            03.02.2022
+date            04.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -61,6 +61,7 @@ private:
     bool m_firstClick;
     bool m_stateIsPlaying;
     int m_fieldVariant;
+    double m_relNMines;
 
     int cntMinesAround(size_t fieldIdx);
     int cntMinesAround(int32_t x, int32_t y);

@@ -18,6 +18,11 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 namespace gui
 {
+    enum STYLE
+    {
+        ALIGN_CENTER_HORIZONTAL = 0x0010
+    };
+
     class Control
     {
     public:
@@ -59,7 +64,7 @@ namespace gui
     class StaticText : public Control
     {
     public:
-        StaticText(const olc::vi2d& pos, const std::string& label);
+        StaticText(const olc::vi2d& pos, const std::string& label, int style = 0);
         virtual ~StaticText() {}
 
         const olc::Pixel& getColor() const { return m_color; }
@@ -75,6 +80,7 @@ namespace gui
         olc::Pixel m_color;
         std::string m_label;
         olc::vi2d m_size;
+        int m_style;
     };
 
 
@@ -82,7 +88,7 @@ namespace gui
     class StringButton : public StaticText
     {
     public:
-        StringButton(const olc::vi2d& pos, const std::string& label);
+        StringButton(const olc::vi2d& pos, const std::string& label, int style = 0);
         virtual ~StringButton() {}
 
         virtual void draw(olc::PixelGameEngine* pge, int drawMode);
