@@ -1,6 +1,6 @@
 #
 # author        Oliver Blaser
-# date          02.02.2022
+# date          04.02.2022
 # copyright     OLC-3 - Copyright (c) 2022 Oliver Blaser
 #
 
@@ -25,6 +25,9 @@ set(SOURCES
 ../../src/olcPixelGameEngine.cpp
 ../../src/resources/sprites.cpp
 )
+
+#add_compile_definitions(_DEBUG)
+#add_compile_definitions(CHEAT_SHOW_MINES)
 
 add_executable(${EXE} ${SOURCES})
 

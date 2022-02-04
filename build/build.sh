@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # author        Oliver Blaser
-# date          01.02.2022
+# date          04.02.2022
 # copyright     OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 # Usage:
@@ -15,6 +15,27 @@ repoDirName=bestagon-mines
 exeName=bestagon-mines
 echoTitle="build bestagon-mines"
 cmakeDirName=cmake
+
+
+
+############################################
+#
+# Besatgon Mines specific
+
+function copyAssets()
+{
+    rm -rf $cmakeDirName/assets
+    mkdir $cmakeDirName/assets
+    cp ../assets/smiley.png $cmakeDirName/assets
+    cp ../assets/smiley_click.png $cmakeDirName/assets
+    cp ../assets/smiley_expl.png $cmakeDirName/assets
+    cp ../assets/smiley_hover2.png $cmakeDirName/assets
+    cp ../assets/smiley_won.png $cmakeDirName/assets
+}
+
+############################################
+
+
 
 errCnt=0
 function procErrorCode()
@@ -53,6 +74,9 @@ function cmd_cmake_clean()
     procErrorCode $?
 
     rm -f $cmakeDirName/$exeName
+    procErrorCode $?
+
+    rm -rf $cmakeDirName/assets
     procErrorCode $?
 }
 
@@ -96,6 +120,7 @@ function procArg()
     elif [ "$1" == "clean" ]; then cmd_clean
     elif [ "$1" == "run" ]
     then
+        copyAssets
         cd ./$cmakeDirName
         procErrorCode $?
         ./$exeName

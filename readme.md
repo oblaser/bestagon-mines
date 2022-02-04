@@ -19,6 +19,12 @@ $ cd build/
 $ ./build.sh [cleanAll] cmake make [&& ./pack.sh]
 ```
 
+Build and run:
+```
+$ cd build/
+$ ./build.sh cmake make run
+```
+
 ### Windows
 Required software: `Visual Studio`
 1. Build
