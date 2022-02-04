@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Bestagon Mines
+GenericName=Bestagon Mines
+#Exec=/opt/bestagon-mines/bestagon-mines
+Exec=/opt/bestagon-mines/launcher.sh
+Icon=/opt/bestagon-mines/bestagon-mines.png
+NoDisplay=false
+Terminal=false
+Categories=Games;
+#StartupNotify=true
