@@ -2,8 +2,6 @@
 
 ![](./assets/bestagon-mines.jpg)
 
-> Using olc::PixelGameEngine, see [License](#license).
-
 
 My intro or "Hello World" project with the olcPGE.
 Experimenting with a hexagonal grid and a minimal GUI implementation.

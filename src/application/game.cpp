@@ -126,7 +126,7 @@ bool Game::OnUserCreate()
     }
 #endif
 
-    loadSprites();
+    loadSprites(TileColors(), true);
 
     GameGui::init();
     st_fieldName->setLabel(getFieldVarStr(m_fieldVariant));

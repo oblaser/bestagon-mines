@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            02.02.2022
+date            17.02.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -9,7 +9,6 @@ copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 #include <cstddef>
 #include <cstdint>
-#include <unordered_map>
 #include <vector>
 
 #include "project.h"
@@ -62,17 +61,38 @@ constexpr char scanBR = '}';
 constexpr char scanBorder = '#';
 
 
+
+struct TileColors
+{
+    olc::Pixel border = olc::Pixel(0xa0, 0xa0, 0xa0); // olc::Pixel(0xba, 0xba, 0xba)
+    olc::Pixel closed = olc::Pixel(0x90, 0x90, 0x90);
+    olc::Pixel openBg = olc::Pixel(0xe8, 0xe8, 0xe8);
+    olc::Pixel num1 = olc::Pixel(0x00, 0x34, 0xa3);
+    olc::Pixel num2 = olc::Pixel(0x8b, 0x00, 0x00);
+    olc::Pixel num3 = olc::Pixel(0xc3, 0x00, 0x00);
+    olc::Pixel num4 = olc::Pixel(0xff, 0x00, 0x00);
+    olc::Pixel num5 = olc::Pixel(0xff, 0x00, 0x00);
+    olc::Pixel num6 = olc::Pixel(0xff, 0x00, 0x00);
+    olc::Pixel mine = olc::Pixel(0x33, 0x21, 0x04);
+    olc::Pixel mineExploded = olc::Pixel(173, 0, 0);
+    olc::Pixel mineCorrect = olc::Pixel(0, 127, 0);
+    olc::Pixel pole = olc::Pixel(0, 0, 0);
+    olc::Pixel flag = olc::Pixel(0xff, 0x1e, 0x00);
+    olc::Pixel flagCorrect = olc::Pixel(0x00, 0x7F, 0x00);
+    olc::Pixel flagStrike = olc::Pixel(0x9D, 0x12, 0x00);
+};
+
+
+
 class SpriteOwner
 {
 public:
     SpriteOwner();
     virtual ~SpriteOwner();
 
-    void loadSprites();
+    void loadSprites(const TileColors& col, bool useSmoothNumbers);
 
 protected:
-    std::unordered_map<char, olc::Pixel> colors;
-
     olc::Sprite* spr_closed = nullptr;
     olc::Sprite* spr_error = nullptr;
     olc::Sprite* spr_exploded = nullptr;
