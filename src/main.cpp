@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            31.01.2022
+date            13.08.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -23,10 +23,17 @@ int main()
 
     Game game;
 
-    if (game.Construct(1000, 550, 1, 1))
+    constexpr bool vSync =
+#ifdef PRJ_DEBUG
+        false;
+#else
+        true;
+#endif
+
+    if (game.Construct(1000, 550, 1, 1, false, vSync))
     {
         game.Start();
     }
-    
+
     return 0;
 }
