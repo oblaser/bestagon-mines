@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            28.01.2022
+date            27.11.2022
 copyright       OLC-3 - Copyright (c) 2022 Oliver Blaser
 */
 
@@ -19,7 +19,7 @@ namespace prj
     const char* const exeName = "bestagon-mines"; // eq to the linker settings
 
     //const omw::Version version(0, 1, 0, "alpha");
-    const char* const versionStr = "1.0.1-alpha";
+    const char* const versionStr = "1.0.1";
 
     const char* const website = "https://github.com/oblaser/bestagon-mines";
 }
