@@ -1,11 +1,11 @@
 #
 # author        Oliver Blaser
-# date          04.02.2022
-# copyright     OLC-3 - Copyright (c) 2022 Oliver Blaser
+# date          26.02.2023
+# copyright     OLC-3 - Copyright (c) 2023 Oliver Blaser
 #
 
 cmake_minimum_required(VERSION 3.13)
-project(space-discovery)
+project(bestagon-mines)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)

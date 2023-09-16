@@ -5,7 +5,7 @@
 # copyright     OLC-3 - Copyright (c) 2022 Oliver Blaser
 
 # Usage:
-# ./*.sh --help
+# ./build.sh --help
 
 
 
@@ -18,7 +18,7 @@ cmakeDirName=cmake
 
 
 
-############################################
+################################################################################
 #
 # Besatgon Mines specific
 
@@ -33,7 +33,7 @@ function copyAssets()
     cp ../assets/smiley_won.png $cmakeDirName/assets
 }
 
-############################################
+################################################################################
 
 
 
@@ -76,8 +76,8 @@ function cmd_cmake_clean()
     rm -f $cmakeDirName/$exeName
     procErrorCode $?
 
-    rm -rf $cmakeDirName/assets
-    procErrorCode $?
+    rm -rf $cmakeDirName/assets                     # Besatgon Mines specific
+    procErrorCode $?                                #
 }
 
 function cmd_cmake()
@@ -120,7 +120,7 @@ function procArg()
     elif [ "$1" == "clean" ]; then cmd_clean
     elif [ "$1" == "run" ]
     then
-        copyAssets
+        copyAssets                                  # Besatgon Mines specific
         cd ./$cmakeDirName
         procErrorCode $?
         ./$exeName
