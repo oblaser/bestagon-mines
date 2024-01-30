@@ -23,17 +23,16 @@ namespace gui
     enum EVENT
     {
         EVT__begin_system = 0,
+
         EVT_NONE = 0,
 
-        // flags, not events
-#pragma region event_flags
 
-        // indicating that the gui needs full control over PGE
-        EVT_POPUP,
-#pragma endregion
+    // flags, not events
+        EVT_POPUP, // indicating that the gui needs full control over PGE
+
 
         EVT__end_system,
-        EVT__begin_custon = 10000
+        EVT__begin_custon = 10000,
     };
 
     class Manager
